@@ -1,0 +1,73 @@
+backend:
+  name: github
+  repo: AlexProyer/TridiCatalogoOnline
+  branch: main
+  base_url: https://tridicatalogo.pages.dev
+  auth_endpoint: api/auth
+
+publish_mode: editorial_workflow
+
+# Rutas relativas a la raíz del repo (donde vive este archivo de config,
+# dentro de catalogo/admin/, no cambia esto: media_folder siempre es
+# relativo a la raíz del repositorio completo).
+media_folder: "catalogo/assets/images"
+public_folder: "assets/images"
+
+collections:
+  - name: "productos"
+    label: "Catálogo de productos"
+    files:
+      - name: "productos"
+        label: "Productos"
+        file: "catalogo/data/products.json"
+        fields:
+          - name: "products"
+            label: "Productos"
+            widget: "list"
+            summary: "{{fields.title}} — {{fields.price}}"
+            fields:
+              - label: "ID interno"
+                name: "id"
+                widget: "string"
+                hint: "Único, sin espacios ni tildes (ej: gato_geo). No lo cambies después de creado el producto."
+              - label: "Nombre del producto"
+                name: "title"
+                widget: "string"
+              - label: "Precio (COP)"
+                name: "price"
+                widget: "number"
+                value_type: "int"
+                hint: "Solo el número, sin puntos ni símbolo de pesos. Ejemplo: 45000"
+              - label: "Categoría"
+                name: "category"
+                widget: "string"
+                hint: "Ejemplo: Decoración, Llaveros, Recuerdos, Regalos"
+              - label: "Descripción"
+                name: "desc"
+                widget: "text"
+              - label: "Material"
+                name: "material"
+                widget: "string"
+                default: "PLA Premium"
+              - label: "Tamaño"
+                name: "size"
+                widget: "string"
+                hint: "Ejemplo: 12 cm"
+              - label: "Foto principal (la que se ve en el catálogo)"
+                name: "mainImage"
+                widget: "image"
+              - name: "colors"
+                label: "Colores disponibles"
+                widget: "list"
+                summary: "{{fields.name}}"
+                fields:
+                  - label: "Nombre del color"
+                    name: "name"
+                    widget: "string"
+                  - label: "Color"
+                    name: "hex"
+                    widget: "color"
+                  - name: "images"
+                    label: "Fotos de este color"
+                    widget: "list"
+                    field: { label: "Foto", name: "image", widget: "image" }

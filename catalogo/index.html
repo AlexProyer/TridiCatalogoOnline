@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tridi - Impresiones 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>Menú</h3>
+                <i class="fa-solid fa-xmark modal-icon-btn" onclick="toggleSidebar()" style="width: 35px; height: 35px;"></i>
+            </div>
+            <ul class="sidebar-menu">
+                <li><i class="fa-solid fa-clipboard-question"></i> Preguntas Frecuentes</li>
+                <li><i class="fa-solid fa-truck-fast"></i> Envíos y Entregas</li>
+                <li><i class="fa-solid fa-headset"></i> Soporte</li>
+                <li onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Cambiar Usuario</li>
+            </ul>
+        </div>
+        
+        <section id="hero-screen">
+            <div class="logo-container">
+                <i class="fa-solid fa-cube logo-icon"></i>
+            </div>
+            <h1>Tridi</h1>
+            <p class="subtitle">Impresiones 3D únicas,<br>hechas para ti.</p>
+            
+            <div id="login-container" style="margin-bottom: 1rem; width: 100%;">
+                <input type="text" id="username-input" placeholder="Tu nombre (opcional)" style="width: 100%; padding: 0.8rem; border-radius: 15px; border: none; outline: none; margin-bottom: 10px; text-align: center;">
+            </div>
+
+            <button class="btn-primary" onclick="startApp()">
+                Comenzar <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <p class="footer-text">
+                Hecho con cariño <i class="fa-solid fa-heart footer-heart"></i>
+            </p>
+        </section>
+
+        <section id="catalog-screen">
+            <div class="modal-icon-btn nav-bell" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="header">
+                <div class="greeting">
+                    <h2 id="greeting-title">¡Hola! 👋</h2>
+                    <p>¿Qué vas a imprimir hoy?</p>
+                </div>
+                <div class="modal-icon-btn nav-bell" onclick="showUserProfile()">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Buscar productos...">
+            </div>
+
+            <div class="categories">
+                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-leaf"></i></div><span>Decoración</span></div>
+                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-key"></i></div><span>Llaveros</span></div>
+                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-heart"></i></div><span>Recuerdos</span></div>
+                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-gift"></i></div><span>Regalos</span></div>
+            </div>
+
+            <div class="promo-banner">
+                <div class="promo-text">
+                    <span class="tag tag-promo">Personaliza</span>
+                    <h3>Hazlo único.<br>Hazlo tuyo.</h3>
+                    <p>Diseños personalizados impresos en 3D.</p>
+                </div>
+                <i class="fa-solid fa-box-open promo-icon"></i>
+            </div>
+
+            <div class="section-title">
+                <h3>Destacados</h3>
+                <a href="#">Ver todo</a>
+            </div>
+
+            <div class="products-grid" id="products-container">
+                </div>
+        </section>
+
+        <section id="explorar-screen" class="view-screen" style="display: none;">
+            <div class="header"><h2>Explorar</h2></div>
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Buscar en todo el catálogo...">
+            </div>
+            <div class="section-title"><h3>Todos los productos</h3></div>
+            <div class="products-grid" id="explorar-container"></div>
+        </section>
+
+        <section id="favoritos-screen" class="view-screen" style="display: none;">
+            <div class="header"><h2>Tus Favoritos ❤️</h2></div>
+            <div class="products-grid" id="favoritos-container"></div>
+        </section>
+
+        <section id="pedidos-screen" class="view-screen" style="display: none;">
+            <div class="header"><h2>Mis Pedidos 📦</h2></div>
+            <div id="pedidos-container" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+        </section>
+
+        <section id="perfil-screen" class="view-screen" style="display: none;">
+            <div class="header"><h2>Mi Perfil 👤</h2></div>
+            <div class="profile-card">
+                <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>
+                <h3 id="profile-name">Usuario</h3>
+                <p class="tag" style="margin-top: 10px; background: rgba(52, 211, 153, 0.2); color: #34d399;">
+                    <i class="fa-solid fa-star"></i> <span id="profile-points">0</span> Puntos Tridi
+                </p>
+            </div>
+        </section>
+
+        <section id="auth-screen" class="view-screen" style="display: none; text-align: center; padding-top: 5rem;">
+            <i class="fa-solid fa-lock" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+            <h2>Inicia Sesión</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Ingresa tu nombre para acceder a esta sección.</p>
+            <input type="text" id="login-input" placeholder="Tu nombre" style="width: 100%; padding: 1rem; border-radius: 15px; border: none; outline: none; margin-bottom: 1rem; text-align: center; font-family: inherit;">
+            <button class="btn-primary" onclick="quickLogin()">Acceder</button>
+        </section>
+
+        <div class="product-modal" id="product-modal">
+            <div class="modal-header">
+                <div class="modal-icon-btn" onclick="closeProduct()"><i class="fa-solid fa-arrow-left"></i></div>
+                <div class="modal-header-actions">
+                    <div class="modal-icon-btn" id="modal-like-btn" onclick="toggleLikeFromModal()"><i class="fa-regular fa-heart"></i></div>
+                    <div class="modal-icon-btn" onclick="shareProduct()"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
+                </div>
+            </div>
+
+            <div class="modal-image-container" id="carousel-container">
+                <div class="carousel-track" id="carousel-track">
+                    </div>
+                <div class="carousel-indicators" id="carousel-indicators">
+                    </div>
+            </div>
+
+            <div class="modal-content">
+                <div class="modal-title-row">
+                    <h2 class="modal-title" id="modal-title">Nombre</h2>
+                    <span class="modal-price" id="modal-price">$0</span>
+                </div>
+                
+                <div class="tag" id="modal-tag"><i class="fa-solid fa-tag"></i> Categoría</div>
+                <p class="modal-desc" id="modal-desc">Descripción</p>
+
+                <div class="specs-grid">
+                    <div class="spec-item"><div class="spec-label">Material</div><div class="spec-value" id="spec-material">PLA Premium</div></div>
+                    <div class="spec-item"><div class="spec-label">Tamaño</div><div class="spec-value" id="spec-size">0 cm</div></div>
+                    <div class="spec-item"><div class="spec-label">Colores</div><div class="spec-value" id="spec-colors">Opciones</div></div>
+                </div>
+
+                <div class="colors-section">
+                    <div class="colors-header">
+                        <span>Colores disponibles</span>
+                        <span class="see-all-colors" onclick="openAllColors()">Ver todos</span>
+                    </div>
+                    <div class="color-options" id="color-options-container">
+                        </div>
+                </div>
+
+                <button class="btn-whatsapp" onclick="sendToWhatsApp()">
+                    <i class="fa-brands fa-whatsapp btn-wa-icon"></i> Pedir por WhatsApp
+                </button>
+            </div>
+        </div>
+
+        <div class="all-colors-overlay" id="all-colors-overlay">
+            <div class="overlay-content">
+                <div class="overlay-header">
+                    <h3>Todos los colores</h3>
+                    <div class="modal-icon-btn" onclick="closeAllColors()"><i class="fa-solid fa-xmark"></i></div>
+                </div>
+                <div class="grid-colors" id="grid-all-colors">
+                    </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav" id="bottom-nav" style="display: none;">
+            <div class="nav-item active" id="nav-inicio" onclick="navigate('catalog')">
+                <i class="fa-solid fa-house"></i><span>Inicio</span>
+            </div>
+            <div class="nav-item" id="nav-explorar" onclick="navigate('explorar')">
+                <i class="fa-solid fa-compass"></i><span>Explorar</span>
+            </div>
+            <div class="nav-item" id="nav-pedidos" onclick="navigate('pedidos')">
+                <i class="fa-solid fa-bag-shopping"></i><span>Pedidos</span>
+            </div>
+            <div class="nav-item" id="nav-favoritos" onclick="navigate('favoritos')">
+                <i class="fa-solid fa-heart"></i><span>Favoritos</span>
+            </div>
+            <div class="nav-item" id="nav-perfil" onclick="navigate('perfil')">
+                <i class="fa-solid fa-user"></i><span>Perfil</span>
+            </div>
+        </nav>
+
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
