@@ -401,9 +401,22 @@ del ancho disponible (es `max-width` sin `width` fijo, así que crece con la
 pantalla hasta chocar contra el tope). Esto reemplazó un bug real: antes
 todo desktop (1024px en adelante) topaba parejo en `1280px`, así que un
 monitor de oficina estándar de 1920×1080 —o incluso uno de 1680×1050—
-dejaba cientos de píxeles vacíos a los costados. El fondo con gradiente
-sigue siendo el mismo en todos los tamaños; lo único que cambia es cuánto
-ancho ocupa el contenido.
+dejaba cientos de píxeles vacíos a los costados.
+
+**El ancho no alcanzaba: el problema real era una costura visual.** Aun con
+los topes más generosos de arriba, el sitio seguía "viéndose recortado" en
+monitores comunes. La causa no era el ancho en sí (medido, el margen a
+1920px ya era de apenas ~3% por lado) sino que `.app-container` tenía su
+**propio** fondo (`radial-gradient(circle at top center, ...)`, pensado
+para mobile) distinto al del `<body>` (`linear-gradient(135deg, ...)`).
+Dos degradados de formas distintas conviviendo generan una costura visible
+justo en el borde del contenedor — eso es lo que se percibía como "una
+caja flotando", más allá de cuánto midiera. Desde tablet (768px) en
+adelante, `.app-container` pasa a `background: transparent`: el fondo del
+`<body>` (que ya cubre todo el viewport) queda como el único fondo, sin
+costura, igual que en un sitio "normal" sin el concepto de "tarjeta de
+app" de por medio. En mobile no cambia nada — ahí el fondo propio de
+`.app-container` se mantiene igual que siempre.
 
 ### Grillas: `auto-fit`, no `auto-fill`
 

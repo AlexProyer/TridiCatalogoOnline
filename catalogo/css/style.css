@@ -624,6 +624,13 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
         max-width: 720px;
         box-shadow: none; /* deja de verse como un "teléfono flotando" */
         overflow: visible; /* permite que el top-nav sticky funcione bien */
+        /* El radial-gradient propio (para mobile) es distinto al degradado
+           diagonal del <body> — esa diferencia de forma crea una costura
+           visible en los bordes del contenedor, y HACE VER una "caja"
+           flotando aunque el ancho ya sea generoso. Sacamos el fondo
+           propio acá: el fondo del body (ya cubre todo el viewport) queda
+           como el único fondo, continuo, sin costura. */
+        background: transparent;
     }
 
     /* La cabecera con ícono de menú/perfil de cada pantalla ya no hace

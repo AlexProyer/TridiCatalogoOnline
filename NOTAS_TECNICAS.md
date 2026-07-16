@@ -332,3 +332,15 @@ el sitio en un monitor de 22":
    productos en el catálogo, las tarjetas se estiren a ocupar el ancho en
    vez de verse chicas y corridas a la izquierda. Probado sin overflow
    horizontal en 1680×1050, 1920×1080, 2560×1440 y 3440×1440.
+
+   **Seguimiento**: Alex reportó que, incluso con estos topes más anchos,
+   el sitio seguía viéndose "recortado" en su monitor. Midiendo, el margen
+   real a 1920px ya era de solo ~3% por lado — el ancho no era el
+   problema real. La causa era que `.app-container` mantenía su propio
+   `radial-gradient` (distinto en forma al `linear-gradient` del `body`),
+   lo que generaba una costura visible en los bordes y hacía *parecer* una
+   caja flotando aunque el margen fuera chico. Se corrigió sacando el
+   fondo propio de `.app-container` desde tablet (768px) en adelante
+   (`background: transparent`) — el fondo del `body` queda como el único,
+   sin costura. Ver [ARQUITECTURA.md](ARQUITECTURA.md) sección 12. Mobile
+   no se tocó (ahí sigue el radial-gradient de siempre).
