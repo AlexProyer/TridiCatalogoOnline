@@ -125,7 +125,7 @@ El catálogo ya no está hardcodeado en `app.js`: vive en
 [catalogo/data/products.json](catalogo/data/products.json), un archivo JSON
 independiente con la forma `{ "products": [...] }` (envuelto en un objeto,
 no un array "pelado" — así lo requiere Decap CMS para poder editarlo desde
-el panel admin, ver sección 12). `app.js` lo carga en tiempo de ejecución
+el panel admin, ver sección 13). `app.js` lo carga en tiempo de ejecución
 con `fetch`:
 
 ```js
@@ -199,10 +199,37 @@ ver la guía en [GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md).
 (imagen, botón de like, título, precio) como string, y se reutiliza en las
 tres vistas que muestran grillas de productos:
 
-- `renderProducts()` → pinta `productsDB` en `#products-container` (inicio).
-- `renderExplorar()` → pinta `productsDB` completo en `#explorar-container`.
+- `renderProducts()` → pinta en `#products-container` (inicio), filtrando
+  `productsDB` por `catalogSearchQuery` (búsqueda en vivo del inicio; ver
+  más abajo).
+- `renderExplorar()` → pinta en `#explorar-container`, filtrando
+  `productsDB` por `currentCategoryFilter` (si hay una categoría activa) y
+  luego por `explorarSearchQuery`. Si el resultado queda vacío, muestra un
+  mensaje distinto según si fue por categoría, por búsqueda, o ambas.
 - `renderFavoritos()` → filtra `productsDB` por `userProfile.likes` y pinta
   en `#favoritos-container` (o un mensaje si no hay favoritos).
+
+### Búsqueda y filtro por categoría
+
+- `filterProductsByQuery(products, query)` — helper compartido: filtra un
+  array de productos por `title`/`category` (case-insensitive). Si `query`
+  está vacío devuelve el array sin tocar.
+- **Inicio**: el input `#catalog-search-input` dispara
+  `handleCatalogSearch(query)` en cada tecla (`input` event), que guarda
+  `catalogSearchQuery` y llama a `renderProducts()`. Volver a "Inicio"
+  desde la barra inferior (`navigate('catalog')`) resetea la búsqueda.
+- **Explorar**: el input `#explorar-search-input` dispara
+  `handleExplorarSearch(query)` → guarda `explorarSearchQuery` y llama a
+  `renderExplorar()`.
+- **Categorías** (`catalog-screen`): cada ícono de categoría llama a
+  `filterByCategory(categoria)`, que setea `currentCategoryFilter` y
+  navega a Explorar. `renderExplorarFilterChip()` pinta un chip con la
+  categoría activa y una `x` que llama a `clearCategoryFilter()`.
+- `goExplorar()` — usada por la barra inferior ("Explorar") y por el
+  enlace "Ver todo" del inicio: limpia `currentCategoryFilter` y
+  `explorarSearchQuery` (y el input de búsqueda) antes de navegar, para
+  que siempre muestre el catálogo completo sin filtros heredados de una
+  visita anterior.
 
 `renderPedidos()` es distinto: recorre `userProfile.orders` (más reciente
 primero) y por cada pedido busca el producto correspondiente en `productsDB`
@@ -326,12 +353,125 @@ de [catalogo/css/style.css](catalogo/css/style.css):
 ```
 
 El diseño usa "glassmorphism" (fondos semitransparentes + `backdrop-filter:
-blur(...)`), un layout centrado tipo app móvil (`.app-container` con
-`max-width: 480px`), y animaciones CSS simples (`fadeIn`, transiciones de
+blur(...)`), y animaciones CSS simples (`fadeIn`, transiciones de
 `transform`). Para cambiar la paleta de colores de toda la app basta con
-editar estas variables.
+editar estas variables. `.app-container` con `max-width: 480px` es el
+layout de **mobile** únicamente — ver la sección siguiente para tablet y
+desktop.
 
-## 12. Panel de administración (Decap CMS) y login con GitHub
+## 12. Diseño responsive (mobile / tablet / desktop)
+
+El sitio nació con un layout fijo tipo "app móvil" (`.app-container` con
+`max-width: 480px` en todos los tamaños de pantalla, bottom-nav estilo tab
+bar). Eso hacía que en pantallas de escritorio se viera como un teléfono
+flotando en medio de un montón de espacio vacío. Se rediseñó para que
+mobile se mantenga exactamente igual, y tablet/desktop se comporten como un
+sitio web normal. Todo el cambio es **CSS y estructura HTML** — el sistema
+de estado (`localStorage`, `navigate()`, `showScreen()`) no se tocó.
+
+### Breakpoints
+
+Mobile-first, sin media query = mobile (el diseño original, intacto):
+
+| Rango | Media query | Qué cambia |
+|---|---|---|
+| Mobile (hasta 767px) | *(default)* | Igual que siempre. |
+| Tablet (768–1023px) | `@media (min-width: 768px)` | Aparece la barra superior, grilla de 3 columnas, se quita el `box-shadow` de "marco de teléfono". |
+| Desktop (1024px+) | `@media (min-width: 1024px)` | Grilla de 5-6+ columnas, hero de landing page, modal de producto centrado en dos columnas. |
+
+`.app-container` pasa de `max-width: 480px` (mobile) a `720px` (tablet) a
+`1280px` (desktop, con tope — no se estira sin límite en monitores ultra
+anchos). El fondo con gradiente sigue siendo el mismo en todos los tamaños;
+lo único que cambia es cuánto ancho ocupa el contenido.
+
+### Mostrar/ocultar la navegación: una sola clase, `.app-container.app-started`
+
+Antes, `startApp()` revelaba el `bottom-nav` seteando
+`style.display = 'flex'` directamente (un estilo inline). Eso chocaba con
+cualquier regla CSS que quisiera ocultarlo de nuevo en desktop (un estilo
+inline siempre le gana a una regla de una hoja de estilos). Ahora
+`startApp()` solo agrega una clase:
+
+```js
+document.getElementById('app-container').classList.add('app-started');
+```
+
+Y todo lo demás lo decide el CSS:
+
+```css
+.app-container.app-started .bottom-nav { display: flex; }   /* mobile (por defecto) */
+
+@media (min-width: 768px) {
+    .app-container.app-started .top-nav { display: flex; }
+    .app-container.app-started .bottom-nav { display: none; }
+}
+```
+
+El `.top-nav` (barra superior) está oculto por defecto y **solo aparece
+después de `startApp()`**, igual que el bottom-nav — así se evita que en
+desktop se pueda navegar a otra pantalla mientras el `hero-screen` todavía
+está mostrándose (`showScreen()` nunca oculta `hero-screen`, solo lo hace
+`startApp()`; si el top-nav fuera clickeable antes de eso, quedarían dos
+pantallas superpuestas).
+
+Los 5 destinos son los mismos que el bottom-nav (`catalog`, `explorar`,
+`favoritos`, `pedidos`, `perfil`), usando los mismos `onclick` (`navigate()`
+/ `goExplorar()`). El botón "Menú" del top-nav llama al mismo
+`toggleSidebar()` de siempre — el sidebar deslizable no cambió, solo se
+reubicó desde dónde se dispara.
+
+`updateNavHighlight(navKey)` se generalizó para marcar `.active` en
+**todos** los elementos con un `data-nav` que coincida (bottom-nav y
+top-nav a la vez), en vez de buscar un solo `id`:
+
+```js
+function updateNavHighlight(navKey) {
+    document.querySelectorAll('.nav-item, .top-nav-item').forEach(item => item.classList.remove('active'));
+    if (navKey) {
+        document.querySelectorAll(`[data-nav="${navKey}"]`).forEach(item => item.classList.add('active'));
+    }
+}
+```
+
+### Grillas de producto
+
+`.products-grid` pasa de columnas fijas (`1fr 1fr`, siempre 2) a columnas
+auto-ajustables con `repeat(auto-fill, minmax(Npx, 1fr))` a partir de
+tablet — el número de columnas lo decide el ancho disponible, no un número
+hardcodeado por dispositivo. Aplica igual a `catalog-screen`,
+`explorar-screen` y `favoritos-screen` (las tres reutilizan `.products-grid`).
+
+### Hero: de splash de app a landing page
+
+El contenido de `#hero-screen` ahora está envuelto en `.hero-content`
+(texto, input, botón — igual que antes) más un `.hero-visual` (el ícono del
+cubo a gran escala, oculto en mobile). En desktop, `#hero-screen` pasa de
+columna centrada a fila de dos columnas (texto a la izquierda, visual a la
+derecha), y el botón "Comenzar" deja de ser `width: 100%` para ser un CTA
+de ancho natural. `startApp()` sigue siendo la única forma de salir de esta
+pantalla — no cambió esa lógica.
+
+### Ficha de producto: bottom-sheet (mobile/tablet) → diálogo centrado (desktop)
+
+El modal se reestructuró: `modal-header` + `modal-image-container` +
+`modal-content` ahora están envueltos en un `.modal-body` (antes eran hijos
+directos de `.product-modal`). En mobile y tablet, `.modal-body` solo
+replica el mismo layout de columna que existía antes — sin cambio visual.
+En desktop (1024px+), `.product-modal` pasa a ser un fondo oscuro de
+backdrop (`opacity`/`pointer-events` en vez de `transform: translateY(...)`
+para mostrar/ocultar) y `.modal-body` se convierte en la tarjeta centrada
+(máx. 960px, dos columnas: carrusel a la izquierda, specs/colores/WhatsApp
+a la derecha). Sigue siendo la misma clase `.active` la que dispara todo —
+`openProduct()`/`closeProduct()` no cambiaron.
+
+Se agregaron flechas de navegación (`goToSlide(direction)`, reutiliza
+`updateSlidePosition()`) visibles solo en desktop, como complemento al
+drag/swipe que ya existía (y que sigue funcionando igual en todos los
+tamaños). Si el color elegido tiene una sola imagen, `renderCarousel()` le
+agrega la clase `single-image` al contenedor del carrusel y las flechas se
+ocultan solas vía CSS.
+
+## 13. Panel de administración (Decap CMS) y login con GitHub
 
 El panel vive en [catalogo/admin/](catalogo/admin/) y queda accesible en
 `/admin/` una vez desplegado. Es **Decap CMS** (un CMS "Git-based": no tiene

@@ -66,6 +66,19 @@ body {
     transition: opacity 0.5s ease;
 }
 
+/* En mobile es solo un wrapper transparente (mismo layout que antes tenía
+   #hero-screen directamente); en desktop se convierte en la columna de texto
+   de una sección hero de landing page real (ver sección responsive). */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Elemento decorativo, solo visible en desktop */
+.hero-visual { display: none; }
+
 .logo-container { margin-bottom: 2rem; }
 .logo-icon {
     font-size: 5rem;
@@ -184,11 +197,21 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
 .product-modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: radial-gradient(circle at top center, #2e2459 0%, #0b0914 80%);
-    z-index: 100; display: flex; flex-direction: column;
+    z-index: 100;
     transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     overflow-y: auto;
 }
 .product-modal.active { transform: translateY(0); }
+
+/* Envuelve header + carrusel + contenido. En mobile solo replica el layout
+   de columna que antes tenía .product-modal directamente (sin cambio visual);
+   en desktop es la "tarjeta" del diálogo centrado (ver sección responsive). */
+.modal-body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
 
 .modal-header { display: flex; justify-content: space-between; padding: 2rem 1.5rem; position: absolute; width: 100%; z-index: 10; }
 .modal-header-actions { display: flex; gap: 10px; }
@@ -254,6 +277,29 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
     width: 16px; /* Efecto de punto alargado para el activo */
     border-radius: 4px;
 }
+
+/* Flechas de navegación del carrusel — ocultas en mobile (ahí manda el
+   drag/swipe existente), visibles desde desktop como complemento con mouse */
+.carousel-arrow {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: white;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 6;
+    transition: background 0.2s;
+}
+.carousel-arrow:hover { background: rgba(255,255,255,0.3); }
+.carousel-arrow-prev { left: 16px; }
+.carousel-arrow-next { right: 16px; }
 
 /* Modal Content */
 .modal-content {
@@ -374,17 +420,22 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
 
 /* --- BARRA INFERIOR DE NAVEGACIÓN --- */
 .bottom-nav {
+    display: none; /* se revela con .app-container.app-started más abajo */
     position: absolute;
     bottom: 0; left: 0; width: 100%;
     background: rgba(11, 9, 20, 0.9);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--glass-border);
-    display: flex;
     justify-content: space-around;
     padding: 1rem 0.5rem;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)); /* Para iPhones */
     z-index: 50;
 }
+
+.app-container.app-started .bottom-nav { display: flex; }
+
+/* --- BARRA SUPERIOR (tablet/desktop) --- */
+.top-nav { display: none; } /* se revela en la sección responsive, junto con .app-started */
 
 .nav-item {
     display: flex;
@@ -451,4 +502,181 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================
+   RESPONSIVE — TABLET (>=768px) Y DESKTOP (>=1024px)
+   Mobile (todo lo de arriba) queda intacto: estas reglas solo
+   se activan a partir de estos anchos.
+   ========================================================== */
+
+@media (min-width: 768px) {
+    .app-container {
+        max-width: 720px;
+        box-shadow: none; /* deja de verse como un "teléfono flotando" */
+        overflow: visible; /* permite que el top-nav sticky funcione bien */
+    }
+
+    /* La cabecera con ícono de menú/perfil de cada pantalla ya no hace
+       falta: sus mismas acciones viven en la barra superior de acá abajo */
+    .nav-bell { display: none; }
+
+    /* Barra superior persistente, reemplaza al bottom-nav en este tamaño */
+    .app-container.app-started .top-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+        padding: 1.25rem 2rem;
+        background: rgba(11, 9, 20, 0.85);
+        backdrop-filter: blur(15px);
+        border-bottom: 1px solid var(--glass-border);
+        position: sticky;
+        top: 0;
+        z-index: 60;
+    }
+    .app-container.app-started .bottom-nav { display: none; }
+
+    .top-nav-logo {
+        display: flex; align-items: center; gap: 0.6rem;
+        font-size: 1.3rem; font-weight: 700; white-space: nowrap;
+    }
+    .top-nav-logo i {
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.5rem;
+    }
+    .top-nav-links { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+    .top-nav-item {
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color 0.2s;
+        padding-bottom: 4px;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+    }
+    .top-nav-item:hover { color: var(--text-main); }
+    .top-nav-item.active { color: var(--primary-light); border-bottom-color: var(--primary-light); }
+    .top-nav-menu-btn {
+        display: flex; align-items: center; gap: 0.5rem;
+        cursor: pointer; color: var(--text-muted); font-size: 0.9rem; white-space: nowrap;
+    }
+    .top-nav-menu-btn:hover { color: var(--text-main); }
+
+    /* Más aire lateral; ya no hace falta padding extra abajo para el bottom-nav */
+    #catalog-screen, .view-screen {
+        padding: 2.5rem 2rem;
+        padding-bottom: 3rem;
+    }
+
+    /* Grillas de producto: de 2 columnas fijas a columnas auto-ajustables */
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .promo-banner { padding: 2rem; }
+}
+
+@media (min-width: 1024px) {
+    .app-container { max-width: 1280px; }
+
+    #catalog-screen, .view-screen {
+        padding: 3rem 4rem;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* --- Hero: de splash de app a sección de landing --- */
+    #hero-screen {
+        height: auto;
+        min-height: 90vh;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 5rem;
+        padding: 4rem 6rem;
+        text-align: left;
+    }
+    .hero-content {
+        align-items: flex-start;
+        max-width: 480px;
+        width: auto;
+    }
+    #hero-screen .btn-primary {
+        width: auto;
+        gap: 0.75rem;
+        padding: 1rem 2.5rem;
+    }
+    .hero-visual {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 380px;
+        height: 380px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+        flex-shrink: 0;
+    }
+    .hero-visual i {
+        font-size: 14rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* --- Ficha de producto: de bottom-sheet a diálogo centrado --- */
+    .product-modal {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(5, 3, 10, 0.75);
+        backdrop-filter: blur(6px);
+        padding: 3rem;
+        transform: none;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .product-modal.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .modal-body {
+        flex-direction: row;
+        min-height: 0;
+        width: 100%;
+        max-width: 960px;
+        max-height: 85vh;
+        background: radial-gradient(circle at top center, #2e2459 0%, #0b0914 80%);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        transform: scale(0.96);
+        transition: transform 0.25s ease;
+    }
+    .product-modal.active .modal-body {
+        transform: scale(1);
+    }
+    .modal-image-container {
+        flex: 0 0 50%;
+        height: auto;
+    }
+    .modal-content {
+        flex: 0 0 50%;
+        margin-top: 0;
+        border-radius: 0;
+        overflow-y: auto;
+    }
+    .modal-header { padding: 1.5rem; }
+
+    /* Flechas del carrusel: solo tienen sentido a partir de acá */
+    .carousel-arrow { display: flex; }
+    .modal-image-container.single-image .carousel-arrow { display: none; }
 }

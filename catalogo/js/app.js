@@ -39,6 +39,11 @@ const productsReady = loadProductsDB();
 let currentProduct = null;
 let selectedColor = null;
 
+// Estado de búsqueda y filtro por categoría (catálogo e Explorar)
+let catalogSearchQuery = '';
+let explorarSearchQuery = '';
+let currentCategoryFilter = null;
+
 // Variables para la lógica del carrusel (deslizamiento)
 let currentSlide = 0;
 let isDragging = false;
@@ -64,9 +69,31 @@ function renderProducts() {
     const container = document.getElementById('products-container');
     container.innerHTML = '';
     if (renderCatalogErrorIfNeeded(container)) return;
-    productsDB.forEach(prod => {
+
+    const productsToShow = filterProductsByQuery(productsDB, catalogSearchQuery);
+
+    if (productsToShow.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-muted); text-align: center; width: 100%; grid-column: span 2;">No encontramos productos para "${catalogSearchQuery}". 🔍</p>`;
+        return;
+    }
+
+    productsToShow.forEach(prod => {
         container.innerHTML += createProductCardHTML(prod);
     });
+}
+
+// Filtra productos por título/categoría (usado por las dos barras de búsqueda)
+function filterProductsByQuery(products, query) {
+    const q = query.trim().toLowerCase();
+    if (q === '') return products;
+    return products.filter(p =>
+        p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
+    );
+}
+
+function handleCatalogSearch(query) {
+    catalogSearchQuery = query;
+    renderProducts();
 }
 
 // 4. LÓGICA DE LA VENTANA MODAL (Detalle de Producto)
@@ -146,7 +173,10 @@ function renderCarousel(imagesArray) {
     indicators.innerHTML = '';
     totalSlides = imagesArray.length;
     currentSlide = 0; // Resetear al primer slide al cambiar de color
-    
+
+    // Oculta las flechas de navegación (desktop) cuando no hay nada entre qué navegar
+    carouselContainer.classList.toggle('single-image', totalSlides <= 1);
+
     if (totalSlides === 0) {
         // Fallback si no hay imágenes (muestra icono genérico)
         track.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;"><i class="fa-solid fa-cube" style="font-size:8rem;color:white;"></i></div>';
@@ -252,8 +282,23 @@ function updateSlidePosition() {
     });
 }
 
+// Flechas de navegación del carrusel (desktop, además del drag/swipe existente)
+function goToSlide(direction) {
+    if (totalSlides <= 1) return;
+    const newSlide = currentSlide + direction;
+    if (newSlide < 0 || newSlide > totalSlides - 1) return;
+    currentSlide = newSlide;
+    updateSlidePosition();
+}
+
 // Evitar que las imágenes se arrastren como archivos
 track.addEventListener('dragstart', (e) => e.preventDefault());
+
+// Búsqueda en vivo (catálogo y Explorar)
+document.getElementById('catalog-search-input')
+    .addEventListener('input', (e) => handleCatalogSearch(e.target.value));
+document.getElementById('explorar-search-input')
+    .addEventListener('input', (e) => handleExplorarSearch(e.target.value));
 
 
 // 6. OVERLAY DE TODOS LOS COLORES
@@ -404,8 +449,10 @@ async function startApp() {
     await productsReady;
 
     document.getElementById('hero-screen').style.display = 'none';
-    document.getElementById('bottom-nav').style.display = 'flex'; // Mostrar barra inferior
-    
+    // Revela la barra inferior (mobile) o superior (tablet/desktop) vía CSS,
+    // según el breakpoint activo — ver .app-container.app-started en style.css
+    document.getElementById('app-container').classList.add('app-started');
+
     navigate('catalog'); // Ir al inicio
 }
 
@@ -422,6 +469,9 @@ function navigate(screenPrefix) {
 
     // 2. Renderizar contenido dinámico según la vista
     if (screenPrefix === 'catalog') {
+        catalogSearchQuery = '';
+        const catalogInput = document.getElementById('catalog-search-input');
+        if (catalogInput) catalogInput.value = '';
         renderProducts(); // Tu función actual
         document.getElementById('greeting-title').innerText = userProfile.name ? `¡Hola, ${userProfile.name}! 👋` : "¡Hola! 👋";
     } else if (screenPrefix === 'explorar') {
@@ -436,9 +486,9 @@ function navigate(screenPrefix) {
 
     // 3. Cambiar la vista
     showScreen(`${screenPrefix}-screen`);
-    
+
     // 4. Actualizar ícono activo
-    updateNavHighlight(`nav-${screenPrefix}`);
+    updateNavHighlight(screenPrefix);
 }
 
 function showScreen(screenId) {
@@ -453,11 +503,13 @@ function showScreen(screenId) {
     }
 }
 
-function updateNavHighlight(navId) {
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    if(navId) {
-        const activeItem = document.getElementById(navId);
-        if(activeItem) activeItem.classList.add('active');
+// navKey es el mismo valor que screenPrefix ('catalog', 'explorar', etc.) y
+// marca como activo cualquier elemento con ese data-nav, tanto en la barra
+// inferior (mobile) como en la barra superior (tablet/desktop) a la vez.
+function updateNavHighlight(navKey) {
+    document.querySelectorAll('.nav-item, .top-nav-item').forEach(item => item.classList.remove('active'));
+    if (navKey) {
+        document.querySelectorAll(`[data-nav="${navKey}"]`).forEach(item => item.classList.add('active'));
     }
 }
 
@@ -484,11 +536,76 @@ function logout() {
 function renderExplorar() {
     const container = document.getElementById('explorar-container');
     container.innerHTML = '';
+    renderExplorarFilterChip();
     if (renderCatalogErrorIfNeeded(container)) return;
-    // Mostramos todos (reutilizamos la plantilla de tarjetas)
-    productsDB.forEach(prod => {
+
+    let productsToShow = currentCategoryFilter
+        ? productsDB.filter(p => p.category === currentCategoryFilter)
+        : productsDB;
+    productsToShow = filterProductsByQuery(productsToShow, explorarSearchQuery);
+
+    if (productsToShow.length === 0) {
+        let mensaje;
+        if (currentCategoryFilter && explorarSearchQuery.trim() !== '') {
+            mensaje = `No encontramos productos en "${currentCategoryFilter}" para "${explorarSearchQuery}". 🔍`;
+        } else if (currentCategoryFilter) {
+            mensaje = `No hay productos en "${currentCategoryFilter}" todavía. 🙁`;
+        } else {
+            mensaje = `No encontramos productos para "${explorarSearchQuery}". 🔍`;
+        }
+        container.innerHTML = `<p style="color: var(--text-muted); text-align: center; width: 100%; grid-column: span 2;">${mensaje}</p>`;
+        return;
+    }
+
+    productsToShow.forEach(prod => {
         container.innerHTML += createProductCardHTML(prod);
     });
+}
+
+// Chip que muestra el filtro de categoría activo en Explorar, con opción de quitarlo
+function renderExplorarFilterChip() {
+    const chipContainer = document.getElementById('explorar-filter-chip');
+    if (!chipContainer) return;
+
+    if (!currentCategoryFilter) {
+        chipContainer.innerHTML = '';
+        return;
+    }
+
+    chipContainer.innerHTML = `
+        <div class="tag" style="cursor: pointer; margin-bottom: 1rem;" onclick="clearCategoryFilter()">
+            <i class="fa-solid fa-filter"></i> ${currentCategoryFilter}
+            <i class="fa-solid fa-xmark" style="margin-left: 6px;"></i>
+        </div>
+    `;
+}
+
+function clearCategoryFilter() {
+    currentCategoryFilter = null;
+    renderExplorar();
+}
+
+function handleExplorarSearch(query) {
+    explorarSearchQuery = query;
+    renderExplorar();
+}
+
+// Ir a Explorar filtrado por una categoría (desde los íconos de categorías del inicio)
+function filterByCategory(category) {
+    currentCategoryFilter = category;
+    explorarSearchQuery = '';
+    const explorarInput = document.getElementById('explorar-search-input');
+    if (explorarInput) explorarInput.value = '';
+    navigate('explorar');
+}
+
+// Ir a Explorar sin ningún filtro (barra inferior y "Ver todo")
+function goExplorar() {
+    currentCategoryFilter = null;
+    explorarSearchQuery = '';
+    const explorarInput = document.getElementById('explorar-search-input');
+    if (explorarInput) explorarInput.value = '';
+    navigate('explorar');
 }
 
 function renderFavoritos() {

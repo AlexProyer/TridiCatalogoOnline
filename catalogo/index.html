@@ -10,7 +10,7 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="app-container" id="app-container">
 
         <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
         <div class="sidebar" id="sidebar">
@@ -25,24 +25,45 @@
                 <li onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Cambiar Usuario</li>
             </ul>
         </div>
-        
-        <section id="hero-screen">
-            <div class="logo-container">
-                <i class="fa-solid fa-cube logo-icon"></i>
-            </div>
-            <h1>Tridi</h1>
-            <p class="subtitle">Impresiones 3D únicas,<br>hechas para ti.</p>
-            
-            <div id="login-container" style="margin-bottom: 1rem; width: 100%;">
-                <input type="text" id="username-input" placeholder="Tu nombre (opcional)" style="width: 100%; padding: 0.8rem; border-radius: 15px; border: none; outline: none; margin-bottom: 10px; text-align: center;">
-            </div>
 
-            <button class="btn-primary" onclick="startApp()">
-                Comenzar <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <p class="footer-text">
-                Hecho con cariño <i class="fa-solid fa-heart footer-heart"></i>
-            </p>
+        <nav class="top-nav" id="top-nav">
+            <div class="top-nav-logo">
+                <i class="fa-solid fa-cube"></i> Tridi
+            </div>
+            <div class="top-nav-links">
+                <div class="top-nav-item active" data-nav="catalog" onclick="navigate('catalog')">Inicio</div>
+                <div class="top-nav-item" data-nav="explorar" onclick="goExplorar()">Explorar</div>
+                <div class="top-nav-item" data-nav="favoritos" onclick="navigate('favoritos')">Favoritos</div>
+                <div class="top-nav-item" data-nav="pedidos" onclick="navigate('pedidos')">Pedidos</div>
+                <div class="top-nav-item" data-nav="perfil" onclick="navigate('perfil')">Perfil</div>
+            </div>
+            <div class="top-nav-menu-btn" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i> Menú
+            </div>
+        </nav>
+
+        <section id="hero-screen">
+            <div class="hero-content">
+                <div class="logo-container">
+                    <i class="fa-solid fa-cube logo-icon"></i>
+                </div>
+                <h1>Tridi</h1>
+                <p class="subtitle">Impresiones 3D únicas,<br>hechas para ti.</p>
+
+                <div id="login-container" style="margin-bottom: 1rem; width: 100%;">
+                    <input type="text" id="username-input" placeholder="Tu nombre (opcional)" style="width: 100%; padding: 0.8rem; border-radius: 15px; border: none; outline: none; margin-bottom: 10px; text-align: center;">
+                </div>
+
+                <button class="btn-primary" onclick="startApp()">
+                    Comenzar <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <p class="footer-text">
+                    Hecho con cariño <i class="fa-solid fa-heart footer-heart"></i>
+                </p>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+                <i class="fa-solid fa-cube"></i>
+            </div>
         </section>
 
         <section id="catalog-screen">
@@ -54,21 +75,21 @@
                     <h2 id="greeting-title">¡Hola! 👋</h2>
                     <p>¿Qué vas a imprimir hoy?</p>
                 </div>
-                <div class="modal-icon-btn nav-bell" onclick="showUserProfile()">
+                <div class="modal-icon-btn nav-bell" onclick="navigate('perfil')">
                     <i class="fa-regular fa-user"></i>
                 </div>
             </div>
 
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Buscar productos...">
+                <input type="text" id="catalog-search-input" placeholder="Buscar productos...">
             </div>
 
             <div class="categories">
-                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-leaf"></i></div><span>Decoración</span></div>
-                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-key"></i></div><span>Llaveros</span></div>
-                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-heart"></i></div><span>Recuerdos</span></div>
-                <div class="category-item"><div class="cat-icon"><i class="fa-solid fa-gift"></i></div><span>Regalos</span></div>
+                <div class="category-item" onclick="filterByCategory('Decoración')"><div class="cat-icon"><i class="fa-solid fa-leaf"></i></div><span>Decoración</span></div>
+                <div class="category-item" onclick="filterByCategory('Llaveros')"><div class="cat-icon"><i class="fa-solid fa-key"></i></div><span>Llaveros</span></div>
+                <div class="category-item" onclick="filterByCategory('Recuerdos')"><div class="cat-icon"><i class="fa-solid fa-heart"></i></div><span>Recuerdos</span></div>
+                <div class="category-item" onclick="filterByCategory('Regalos')"><div class="cat-icon"><i class="fa-solid fa-gift"></i></div><span>Regalos</span></div>
             </div>
 
             <div class="promo-banner">
@@ -82,7 +103,7 @@
 
             <div class="section-title">
                 <h3>Destacados</h3>
-                <a href="#">Ver todo</a>
+                <a href="#" onclick="goExplorar(); return false;">Ver todo</a>
             </div>
 
             <div class="products-grid" id="products-container">
@@ -93,8 +114,9 @@
             <div class="header"><h2>Explorar</h2></div>
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Buscar en todo el catálogo...">
+                <input type="text" id="explorar-search-input" placeholder="Buscar en todo el catálogo...">
             </div>
+            <div id="explorar-filter-chip"></div>
             <div class="section-title"><h3>Todos los productos</h3></div>
             <div class="products-grid" id="explorar-container"></div>
         </section>
@@ -129,48 +151,52 @@
         </section>
 
         <div class="product-modal" id="product-modal">
-            <div class="modal-header">
-                <div class="modal-icon-btn" onclick="closeProduct()"><i class="fa-solid fa-arrow-left"></i></div>
-                <div class="modal-header-actions">
-                    <div class="modal-icon-btn" id="modal-like-btn" onclick="toggleLikeFromModal()"><i class="fa-regular fa-heart"></i></div>
-                    <div class="modal-icon-btn" onclick="shareProduct()"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
-                </div>
-            </div>
-
-            <div class="modal-image-container" id="carousel-container">
-                <div class="carousel-track" id="carousel-track">
+            <div class="modal-body">
+                <div class="modal-header">
+                    <div class="modal-icon-btn" onclick="closeProduct()"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="modal-header-actions">
+                        <div class="modal-icon-btn" id="modal-like-btn" onclick="toggleLikeFromModal()"><i class="fa-regular fa-heart"></i></div>
+                        <div class="modal-icon-btn" onclick="shareProduct()"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
                     </div>
-                <div class="carousel-indicators" id="carousel-indicators">
-                    </div>
-            </div>
-
-            <div class="modal-content">
-                <div class="modal-title-row">
-                    <h2 class="modal-title" id="modal-title">Nombre</h2>
-                    <span class="modal-price" id="modal-price">$0</span>
-                </div>
-                
-                <div class="tag" id="modal-tag"><i class="fa-solid fa-tag"></i> Categoría</div>
-                <p class="modal-desc" id="modal-desc">Descripción</p>
-
-                <div class="specs-grid">
-                    <div class="spec-item"><div class="spec-label">Material</div><div class="spec-value" id="spec-material">PLA Premium</div></div>
-                    <div class="spec-item"><div class="spec-label">Tamaño</div><div class="spec-value" id="spec-size">0 cm</div></div>
-                    <div class="spec-item"><div class="spec-label">Colores</div><div class="spec-value" id="spec-colors">Opciones</div></div>
                 </div>
 
-                <div class="colors-section">
-                    <div class="colors-header">
-                        <span>Colores disponibles</span>
-                        <span class="see-all-colors" onclick="openAllColors()">Ver todos</span>
-                    </div>
-                    <div class="color-options" id="color-options-container">
+                <div class="modal-image-container" id="carousel-container">
+                    <div class="carousel-track" id="carousel-track">
                         </div>
+                    <div class="carousel-indicators" id="carousel-indicators">
+                        </div>
+                    <div class="carousel-arrow carousel-arrow-prev" onclick="goToSlide(-1)"><i class="fa-solid fa-chevron-left"></i></div>
+                    <div class="carousel-arrow carousel-arrow-next" onclick="goToSlide(1)"><i class="fa-solid fa-chevron-right"></i></div>
                 </div>
 
-                <button class="btn-whatsapp" onclick="sendToWhatsApp()">
-                    <i class="fa-brands fa-whatsapp btn-wa-icon"></i> Pedir por WhatsApp
-                </button>
+                <div class="modal-content">
+                    <div class="modal-title-row">
+                        <h2 class="modal-title" id="modal-title">Nombre</h2>
+                        <span class="modal-price" id="modal-price">$0</span>
+                    </div>
+
+                    <div class="tag" id="modal-tag"><i class="fa-solid fa-tag"></i> Categoría</div>
+                    <p class="modal-desc" id="modal-desc">Descripción</p>
+
+                    <div class="specs-grid">
+                        <div class="spec-item"><div class="spec-label">Material</div><div class="spec-value" id="spec-material">PLA Premium</div></div>
+                        <div class="spec-item"><div class="spec-label">Tamaño</div><div class="spec-value" id="spec-size">0 cm</div></div>
+                        <div class="spec-item"><div class="spec-label">Colores</div><div class="spec-value" id="spec-colors">Opciones</div></div>
+                    </div>
+
+                    <div class="colors-section">
+                        <div class="colors-header">
+                            <span>Colores disponibles</span>
+                            <span class="see-all-colors" onclick="openAllColors()">Ver todos</span>
+                        </div>
+                        <div class="color-options" id="color-options-container">
+                            </div>
+                    </div>
+
+                    <button class="btn-whatsapp" onclick="sendToWhatsApp()">
+                        <i class="fa-brands fa-whatsapp btn-wa-icon"></i> Pedir por WhatsApp
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -185,20 +211,20 @@
             </div>
         </div>
 
-        <nav class="bottom-nav" id="bottom-nav" style="display: none;">
-            <div class="nav-item active" id="nav-inicio" onclick="navigate('catalog')">
+        <nav class="bottom-nav" id="bottom-nav">
+            <div class="nav-item active" id="nav-inicio" data-nav="catalog" onclick="navigate('catalog')">
                 <i class="fa-solid fa-house"></i><span>Inicio</span>
             </div>
-            <div class="nav-item" id="nav-explorar" onclick="navigate('explorar')">
+            <div class="nav-item" id="nav-explorar" data-nav="explorar" onclick="goExplorar()">
                 <i class="fa-solid fa-compass"></i><span>Explorar</span>
             </div>
-            <div class="nav-item" id="nav-pedidos" onclick="navigate('pedidos')">
+            <div class="nav-item" id="nav-pedidos" data-nav="pedidos" onclick="navigate('pedidos')">
                 <i class="fa-solid fa-bag-shopping"></i><span>Pedidos</span>
             </div>
-            <div class="nav-item" id="nav-favoritos" onclick="navigate('favoritos')">
+            <div class="nav-item" id="nav-favoritos" data-nav="favoritos" onclick="navigate('favoritos')">
                 <i class="fa-solid fa-heart"></i><span>Favoritos</span>
             </div>
-            <div class="nav-item" id="nav-perfil" onclick="navigate('perfil')">
+            <div class="nav-item" id="nav-perfil" data-nav="perfil" onclick="navigate('perfil')">
                 <i class="fa-solid fa-user"></i><span>Perfil</span>
             </div>
         </nav>

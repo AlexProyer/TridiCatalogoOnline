@@ -1,11 +1,14 @@
 # Tridi - Catálogo Online
 
-Catálogo web para **Tridi**, un negocio de impresiones 3D. Es una página web
-que simula una app móvil: el cliente entra, ve productos (llaveros, figuras
-decorativas, etc.), elige color, y hace su pedido enviando un mensaje
-prellenado por **WhatsApp**. No hay backend ni base de datos propia: el
-catálogo vive en un archivo JSON versionado en git, y hay un panel de
-administración (Decap CMS) para editarlo sin tocar código.
+Catálogo web para **Tridi**, un negocio de impresiones 3D. El cliente entra,
+ve productos (llaveros, figuras decorativas, etc.), elige color, y hace su
+pedido enviando un mensaje prellenado por **WhatsApp**. Es responsive: en
+mobile se comporta como una app (bottom-nav, fichas de producto tipo
+bottom-sheet); en tablet/desktop es un sitio web normal (barra superior,
+grillas que escalan con el ancho de pantalla, modal de producto centrado —
+ver [ARQUITECTURA.md](ARQUITECTURA.md) sección 12). No hay backend ni base
+de datos propia: el catálogo vive en un archivo JSON versionado en git, y
+hay un panel de administración (Decap CMS) para editarlo sin tocar código.
 
 - **Sitio en vivo**: https://tridicatalogo.alexbuitrago156.workers.dev
 - **Panel de administración**: https://tridicatalogo.alexbuitrago156.workers.dev/admin/ (ver [catalogo/ADMIN.md](catalogo/ADMIN.md))
@@ -53,7 +56,7 @@ El sitio en sí no necesita variables de entorno. El panel de administración
 (`/admin/`) sí depende de dos variables configuradas en el Worker
 `tridicatalogo` en Cloudflare (`GITHUB_OAUTH_CLIENT_ID` y
 `GITHUB_OAUTH_CLIENT_SECRET`) — ver [ARQUITECTURA.md](ARQUITECTURA.md)
-sección 12. Lo otro "configurable" a mano es el número de WhatsApp, ver
+sección 13. Lo otro "configurable" a mano es el número de WhatsApp, ver
 [GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md).
 
 ## Estructura de carpetas
@@ -87,7 +90,7 @@ TridiCatalogoOnline/                 (raíz del repo de GitHub)
 `catalogo/`) porque así lo espera Cloudflare Workers: el archivo `main` del
 Worker (`src/worker.js`) y la carpeta de assets (`catalogo/`, declarada en
 `wrangler.jsonc`) son dos configuraciones independientes del mismo Worker.
-Ver [ARQUITECTURA.md](ARQUITECTURA.md) sección 12 para el detalle del panel
+Ver [ARQUITECTURA.md](ARQUITECTURA.md) sección 13 para el detalle del panel
 admin y el flujo de OAuth.
 
 No hay `package.json` ni carpetas de build (`dist/`, `node_modules/`, etc.)

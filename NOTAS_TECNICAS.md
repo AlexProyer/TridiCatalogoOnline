@@ -107,7 +107,7 @@ código. Detalles:
 
 Se agregó un panel en `/admin/` (Decap CMS) para editar `products.json` sin
 tocar código, con login vía OAuth de GitHub. Ver
-[ARQUITECTURA.md](ARQUITECTURA.md) sección 12 para el flujo completo y
+[ARQUITECTURA.md](ARQUITECTURA.md) sección 13 para el flujo completo y
 [catalogo/ADMIN.md](catalogo/ADMIN.md) para el uso día a día. Cosas a tener
 en cuenta:
 
@@ -166,3 +166,34 @@ seteado y se ve el mensaje de error en vez del catálogo. Hace falta un
 servidor HTTP, aunque sea local (`npx serve catalogo`, `wrangler dev`,
 Live Server, etc.). En producción esto no es un problema porque Cloudflare
 Workers siempre sirve por HTTP.
+
+## 10. ✅ RESUELTO — Elementos de la interfaz que no hacían nada
+
+Al hacer un inventario completo de todo lo clickeable en `index.html`, se
+encontraron elementos rotos o sin funcionalidad que no estaban documentados
+acá. Todos se implementaron:
+
+- **Ícono de usuario del header** (`catalog-screen`) llamaba a
+  `showUserProfile()`, una función que **no existía** en `app.js` —
+  tiraba un error real en consola (`showUserProfile is not defined`) y no
+  hacía nada visible. Se cambió por `navigate('perfil')` (reutiliza la
+  pantalla de Perfil que ya existía, con su mismo gate de login).
+- **Las 4 categorías** (Decoración, Llaveros, Recuerdos, Regalos) tenían
+  `cursor: pointer` en CSS pero **cero `onclick`** en el HTML. Ahora cada
+  una llama a `filterByCategory(categoria)`, que navega a Explorar filtrado
+  por esa categoría (con un chip para ver/quitar el filtro activo,
+  `renderExplorarFilterChip()` / `clearCategoryFilter()` en `app.js`).
+- **Las dos barras de búsqueda** ("Buscar productos..." en el inicio y
+  "Buscar en todo el catálogo..." en Explorar) eran puramente decorativas.
+  Ahora filtran en vivo por título/categoría (`handleCatalogSearch()` /
+  `handleExplorarSearch()`, conectadas con `addEventListener('input', ...)`
+  sobre `#catalog-search-input` / `#explorar-search-input`).
+- **El enlace "Ver todo"** (junto a "Destacados") tenía `href="#"` sin
+  ningún JS. Ahora llama a `goExplorar()` (Explorar sin ningún filtro).
+
+Nota de contenido (no de código): las categorías "Recuerdos" y "Regalos"
+todavía no tienen ningún producto cargado en `products.json`, así que
+filtrar por ellas hoy muestra el estado vacío ("No hay productos en...
+todavía"). Es el comportamiento esperado — se resuelve solo agregando
+productos con esas categorías (ver [GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md)
+o [catalogo/ADMIN.md](catalogo/ADMIN.md)).
