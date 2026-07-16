@@ -70,6 +70,9 @@ TridiCatalogoOnline/                 (raíz del repo de GitHub)
 │   └── oauth-callback.js   Lógica de /api/callback (recibe el token y se lo pasa al panel admin)
 └── catalogo/                        ("assets.directory" en wrangler.jsonc — lo que se sirve como sitio)
     ├── index.html            Toda la estructura HTML de la app (una sola página)
+    ├── 404.html              Página de error personalizada (no encontrado)
+    ├── robots.txt            Le dice a los buscadores qué indexar (bloquea /admin/)
+    ├── sitemap.xml           Lista de URLs para buscadores (solo la home, es una sola página)
     ├── ADMIN.md              Guía simple del panel de administración (sin tecnicismos)
     ├── css/
     │   └── style.css         Todo el estilo visual (tema oscuro/morado, layout, animaciones)
@@ -82,8 +85,8 @@ TridiCatalogoOnline/                 (raíz del repo de GitHub)
     │   └── config.yml         Define el formulario del panel y a qué archivo/repo escribe
     └── assets/
         └── images/
-            ├── gato/           Fotos del producto "Gato geométrico"
-            └── llavero/        Foto genérica del producto "Llavero personalizado"
+            ├── gato/           Fotos del producto "Gato geométrico" (JPEG + .webp equivalente de cada una)
+            └── llavero/        Foto genérica del producto "Llavero personalizado" (JPEG + .webp)
 ```
 
 `wrangler.jsonc` y `src/` viven en la **raíz del repo** (no dentro de

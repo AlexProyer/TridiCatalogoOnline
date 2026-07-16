@@ -3,7 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tridi - Impresiones 3D</title>
+    <title>Tridi - Catálogo de Impresiones 3D | Llaveros, Decoración y Regalos Personalizados</title>
+    <meta name="description" content="Catálogo online de Tridi: figuras decorativas, llaveros y regalos personalizados impresos en 3D. Elegí el color que más te guste y pedí directo por WhatsApp.">
+
+    <!-- Open Graph (vista previa al compartir el link en WhatsApp, redes, etc.) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Tridi">
+    <meta property="og:title" content="Tridi - Catálogo de Impresiones 3D">
+    <meta property="og:description" content="Figuras decorativas, llaveros y regalos personalizados impresos en 3D. Elegí el color que más te guste y pedí directo por WhatsApp.">
+    <meta property="og:url" content="https://tridicatalogo.alexbuitrago156.workers.dev/">
+    <meta property="og:image" content="https://tridicatalogo.alexbuitrago156.workers.dev/assets/og/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon (generado a partir del logo real de Tridi) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="assets/favicon/site.webmanifest">
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -28,7 +47,10 @@
 
         <nav class="top-nav" id="top-nav">
             <div class="top-nav-logo">
-                <i class="fa-solid fa-cube"></i> Tridi
+                <picture>
+                    <source srcset="assets/logo/tridi-logo.webp" type="image/webp">
+                    <img src="assets/logo/tridi-logo.png" alt="Tridi">
+                </picture>
             </div>
             <div class="top-nav-links">
                 <div class="top-nav-item active" data-nav="catalog" onclick="navigate('catalog')">Inicio</div>
@@ -45,9 +67,11 @@
         <section id="hero-screen">
             <div class="hero-content">
                 <div class="logo-container">
-                    <i class="fa-solid fa-cube logo-icon"></i>
+                    <picture>
+                        <source srcset="assets/logo/tridi-logo.webp" type="image/webp">
+                        <img src="assets/logo/tridi-logo.png" alt="Tridi" class="logo-icon">
+                    </picture>
                 </div>
-                <h1>Tridi</h1>
                 <p class="subtitle">Impresiones 3D únicas,<br>hechas para ti.</p>
 
                 <div id="login-container" style="margin-bottom: 1rem; width: 100%;">
@@ -62,7 +86,10 @@
                 </p>
             </div>
             <div class="hero-visual" aria-hidden="true">
-                <i class="fa-solid fa-cube"></i>
+                <picture>
+                    <source srcset="assets/logo/tridi-logo.webp" type="image/webp">
+                    <img src="assets/logo/tridi-logo.png" alt="">
+                </picture>
             </div>
         </section>
 

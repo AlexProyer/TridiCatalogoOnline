@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  El catálogo es una página única (todo el "routing" entre Inicio/Explorar/
+  Favoritos/Pedidos/Perfil pasa por JavaScript, no por URLs reales), así que
+  solo hay una URL real para listar acá. Si en el futuro se agregan páginas
+  con URL propia, sumarlas como nuevas entradas <url>.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://tridicatalogo.alexbuitrago156.workers.dev/</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+</urlset>

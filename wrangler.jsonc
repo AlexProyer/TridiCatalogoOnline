@@ -10,7 +10,9 @@
         "binding": "ASSETS",
         // Las rutas de la API del panel admin siempre pasan primero por el Worker,
         // en vez de intentar resolverse como un archivo estático
-        "run_worker_first": ["/api/*"]
+        "run_worker_first": ["/api/*"],
+        // Sirve catalogo/404.html (en vez del index.html) para cualquier ruta que no exista
+        "not_found_handling": "404-page"
     }
 
     // GITHUB_OAUTH_CLIENT_ID y GITHUB_OAUTH_CLIENT_SECRET se configuran desde el

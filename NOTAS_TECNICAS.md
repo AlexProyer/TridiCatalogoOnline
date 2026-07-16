@@ -197,3 +197,76 @@ filtrar por ellas hoy muestra el estado vacío ("No hay productos en...
 todavía"). Es el comportamiento esperado — se resuelve solo agregando
 productos con esas categorías (ver [GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md)
 o [catalogo/ADMIN.md](catalogo/ADMIN.md)).
+
+## 11. Pulido técnico: metadata, imágenes, 404, loading states
+
+Pasada de pulido sobre el rediseño responsive (que no cambia layout, solo
+metadata/rendimiento/accesibilidad):
+
+- **WebP + fallback JPEG**: todas las fotos existentes en
+  `assets/images/` se convirtieron a `.webp` (conservando el JPEG
+  original) — ~51% menos peso para navegadores modernos. `app.js` arma un
+  `<picture>` con `<source type="image/webp">` + `<img>` de respaldo en
+  las tres vistas que muestran imágenes (`createProductCardHTML`,
+  `renderCarousel`, `renderPedidos`). Ver la nota sobre fotos nuevas en
+  [GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md) — el `.webp` **no se genera
+  solo** para imágenes que se suban después.
+- `<picture> { display: contents; }` (regla global en `style.css`) hace
+  que el wrapper no afecte ningún estilo existente del `<img>` (flex,
+  tamaños, etc.) — por eso no hizo falta tocar el resto del CSS de
+  `.product-img` / `.carousel-track img` al introducir `<picture>`.
+- **Alt text**: antes era genérico (`alt="${title}"` en la tarjeta, sin
+  `alt` en la miniatura de Pedidos). Ahora describe título + color +
+  posición en el carrusel (ej. `"Gato geométrico, color Blanco (foto 1 de
+  3)"`), generado dinámicamente a partir de los datos del producto.
+- **Loading states**: `.product-img` tiene un shimmer animado (CSS puro,
+  usa `--glass-bg`/`--glass-border`) que se apaga solo cuando la imagen
+  soltó el evento `load` (clase `.loaded`, agregada vía `onload` inline).
+  El carrusel del modal usa el mismo patrón (fade de opacidad). No depende
+  de la cantidad de columnas de la grilla — es por-tarjeta, no por-grilla.
+- **404 personalizada** (`catalogo/404.html`): reutiliza `style.css` y las
+  mismas clases (`.app-container`, `.btn-primary`) para que se vea igual
+  de responsive que el resto del sitio, no como el viejo frame de app
+  móvil. Requiere `"not_found_handling": "404-page"` en `wrangler.jsonc`
+  (sin eso, Cloudflare Workers muestra su propio 404 genérico en vez de
+  este archivo).
+- **`robots.txt`** bloquea `/admin/` (no tiene sentido indexar el panel) y
+  apunta a **`sitemap.xml`** — que solo lista la home, porque el catálogo
+  es una sola página (todo el "routing" entre pantallas es JS, no URLs
+  reales).
+- **Logo real y favicon (✅ resuelto)**: Alex mandó el logo oficial de
+  Tridi (PNG con fondo transparente). Se guardó recortado en
+  `catalogo/assets/logo/tridi-logo.png` (+ `.webp`), y se generaron las
+  variantes de favicon en `catalogo/assets/favicon/`
+  (`favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png` —con
+  fondo sólido `--bg-color`, porque iOS no maneja bien la transparencia—,
+  `icon-192.png`, `icon-512.png`, y un `site.webmanifest` mínimo que los
+  referencia). El logo reemplazó al ícono de cubo de Font Awesome en:
+  `top-nav-logo`, `.logo-container` del hero, `.hero-visual` (desktop), y
+  el ícono de la página 404. **Se sacó el texto "Tridi" que estaba al
+  lado/debajo del ícono en el top-nav y en el hero** porque el logo ya
+  trae el nombre incluido — quedaba duplicado. Si se prefiere volver a
+  mostrar el `<h1>Tridi</h1>` del hero además del logo, es un cambio de
+  una línea en `index.html`.
+- **`og:image` (✅ resuelto)**: en vez de usar directo alguna foto de
+  producto (quedaría mal recortada — las fotos son ~1004×1115, casi
+  cuadradas, y `og:image` se muestra en 1200×630, mucho más ancho), se
+  compuso una imagen dedicada en
+  [catalogo/assets/og/og-image.jpg](catalogo/assets/og/og-image.jpg):
+  fondo con el mismo gradiente de marca que el resto del sitio, el logo
+  arriba a la izquierda, la bajada del hero ("Impresiones 3D únicas,
+  hechas para ti.") como texto, y la foto de `gato_rosado_basecelular.jpeg`
+  a la derecha. Se generó con `sharp` componiendo un SVG de fondo + el
+  logo + la foto (script no versionado, vivió solo en el scratchpad de la
+  sesión). Si se agregan productos nuevos más adelante y se quiere
+  actualizar esta imagen con otra foto, hay que rehacer la composición a
+  mano (no hay un script en el repo para regenerarla).
+
+**Nota de testing**: en el navegador headless usado para probar esta
+sesión, `loading="lazy"` en las imágenes no dispara la carga (posible
+limitación del entorno de automatización sin ciclo de render activo — el
+mismo entorno donde las capturas de pantalla vienen fallando toda la
+sesión). Se verificó forzando `loading="eager"` manualmente que todo el
+resto del mecanismo (WebP, alt, `.loaded`) funciona correctamente una vez
+que la imagen carga; no se pudo confirmar el comportamiento de
+`loading="lazy"` en un navegador real durante esta sesión.

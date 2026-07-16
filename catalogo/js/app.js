@@ -185,13 +185,24 @@ function renderCarousel(imagesArray) {
         return;
     }
 
-    // Inyectar imágenes
+    // Inyectar imágenes (con <picture> para servir WebP con fallback a JPEG)
     imagesArray.forEach((imgSrc, index) => {
+        const picture = document.createElement('picture');
+
+        const source = document.createElement('source');
+        source.srcset = toWebpPath(imgSrc);
+        source.type = 'image/webp';
+        picture.appendChild(source);
+
         const img = document.createElement('img');
         img.src = imgSrc;
-        img.alt = `${currentProduct.title} - ${selectedColor.name}`;
-        track.appendChild(img);
-        
+        img.alt = `${currentProduct.title}, color ${selectedColor.name} (foto ${index + 1} de ${imagesArray.length})`;
+        img.loading = 'lazy';
+        img.onload = () => img.classList.add('loaded');
+        picture.appendChild(img);
+
+        track.appendChild(picture);
+
         // Inyectar punto indicador
         const indicator = document.createElement('div');
         indicator.className = `indicator-dot ${index === 0 ? 'active' : ''}`;
@@ -647,7 +658,10 @@ function renderPedidos() {
                 </div>
                 <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
                     <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 5px;">
-                        <img src="${prod.mainImage}" style="width: 100%; height: 100%; object-fit: contain;">
+                        <picture>
+                            <source srcset="${toWebpPath(prod.mainImage)}" type="image/webp">
+                            <img src="${prod.mainImage}" alt="${prod.title}" loading="lazy" style="width: 100%; height: 100%; object-fit: contain;">
+                        </picture>
                     </div>
                     <div>
                         <div class="order-card-title">${prod.title}</div>
@@ -666,6 +680,14 @@ function renderPerfil() {
     document.getElementById('profile-points').innerText = puntos;
 }
 
+// Deriva la ruta .webp equivalente de una imagen .jpg/.jpeg/.png ya existente
+// (se generó un .webp hermano para cada imagen real del catálogo; si alguna
+// imagen todavía no tiene su .webp, el <source> simplemente no matchea y el
+// navegador cae al <img> de toda la vida, sin romper nada)
+function toWebpPath(imagePath) {
+    return imagePath.replace(/\.(jpe?g|png)$/i, '.webp');
+}
+
 // Función auxiliar para no repetir código de creación de tarjetas
 function createProductCardHTML(prod) {
     const isLiked = userProfile.likes.includes(prod.id);
@@ -676,7 +698,12 @@ function createProductCardHTML(prod) {
                 <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
             </button>
             <div class="product-img">
-                <img src="${prod.mainImage}" alt="${prod.title}" class="img-placeholder" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 512 512\\'%3E%3Cpath d=\\'M32 448c0 17.7 14.3 32 32 32h384c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32H64C46.3 32 32 46.3 32 64v384zm224-224a48 48 0 1 1 0 96 48 48 0 1 1 0-96z\\'/%3E%3C/svg%3E';">
+                <picture>
+                    <source srcset="${toWebpPath(prod.mainImage)}" type="image/webp">
+                    <img src="${prod.mainImage}" alt="${prod.title} — foto principal" class="img-placeholder" loading="lazy"
+                         onload="this.closest('.product-img').classList.add('loaded')"
+                         onerror="this.closest('.product-img').classList.add('loaded'); this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 512 512\\'%3E%3Cpath d=\\'M32 448c0 17.7 14.3 32 32 32h384c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32H64C46.3 32 32 46.3 32 64v384zm224-224a48 48 0 1 1 0 96 48 48 0 1 1 0-96z\\'/%3E%3C/svg%3E';">
+                </picture>
             </div>
             <h4 class="product-title">${prod.title}</h4>
             <span class="product-price">${formatPrice}</span>

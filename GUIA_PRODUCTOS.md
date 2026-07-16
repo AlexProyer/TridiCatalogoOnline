@@ -108,6 +108,18 @@ corre sobre Linux, que sí distingue mayúsculas de minúsculas — usar siempre
 minúsculas en carpetas y archivos nuevos evita este problema (ver
 [NOTAS_TECNICAS.md](NOTAS_TECNICAS.md) por el caso real que ya se corrigió).
 
+### Fotos nuevas y WebP (importante)
+
+El sitio sirve cada foto en formato **WebP** (más liviano) con la imagen
+original (JPEG/PNG) como respaldo automático para navegadores viejos —
+`app.js` arma un `<picture>` que primero intenta el `.webp` con el mismo
+nombre de archivo y cae al original si no existe. **Esto no es automático
+para fotos nuevas**: si subís una foto nueva (a mano o desde el panel
+admin), el sitio va a mostrarla igual usando el JPEG/PNG original — no se
+genera un `.webp` solo. Para que también tenga la versión liviana, alguien
+con acceso al código tiene que generar el `.webp` correspondiente (mismo
+nombre, mismo lugar) y subirlo junto con la foto original.
+
 ## 3. Editar un producto existente
 
 Buscar el producto por su `id` o `title` dentro del array `products` en
