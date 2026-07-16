@@ -1,58 +1,80 @@
 {
-    "products": [
+  "products": [
+    {
+      "size": "12 cm",
+      "mainImage": "assets/images/gato/gato_rosado_basecelular.jpeg",
+      "material": "PLA Premium",
+      "price": 33333,
+      "colors": [
         {
-            "id": "gato_geo",
-            "title": "Gato geométrico",
-            "price": 45000,
-            "category": "Decoración",
-            "desc": "Figura decorativa con diseño geométrico impresa en 3D. Ideal para amantes de los gatos.",
-            "material": "PLA Premium",
-            "size": "12 cm",
-            "mainImage": "assets/images/gato/gato_rosado_basecelular.jpeg",
-            "colors": [
-                {
-                    "name": "Blanco",
-                    "hex": "#ffffff",
-                    "images": [
-                        "assets/images/gato/gato_rosado_basecelular.jpeg",
-                        "assets/images/gato/gato_rosado_basecelular1.jpeg",
-                        "assets/images/gato/gato_rosado_basecelular2.jpeg"
-                    ]
-                },
-                {
-                    "name": "Negro",
-                    "hex": "#1f2937",
-                    "images": [
-                        "assets/images/gato/gato_rosado_basecelular2.jpeg",
-                        "assets/images/gato/gato_rosado_basecelular3.jpeg"
-                    ]
-                },
-                {
-                    "name": "Morado",
-                    "hex": "#8b5cf6",
-                    "images": ["assets/images/gato/blanco_1.jpg"]
-                },
-                {
-                    "name": "Azul",
-                    "hex": "#3b82f6",
-                    "images": ["assets/images/gato/blanco_1.jpg"]
-                }
-            ]
+          "name": "Blanco",
+          "hex": "#ffffff",
+          "images": [
+            "assets/images/gato/gato_rosado_basecelular.jpeg",
+            "assets/images/gato/gato_rosado_basecelular1.jpeg",
+            "assets/images/gato/gato_rosado_basecelular2.jpeg"
+          ]
         },
         {
-            "id": "llavero_pers",
-            "title": "Llavero personalizado",
-            "price": 18000,
-            "category": "Llaveros",
-            "desc": "Llavero 3D personalizado con nombre o iniciales.",
-            "material": "PLA Premium",
-            "size": "6 cm",
-            "mainImage": "assets/images/llavero/general.jpeg",
-            "colors": [
-                { "name": "Morado", "hex": "#a78bfa", "images": ["assets/images/llavero/llavero_1.jpg"] },
-                { "name": "Rosa", "hex": "#f43f5e", "images": ["assets/images/llavero/llavero_1.jpg"] },
-                { "name": "Verde", "hex": "#10b981", "images": ["assets/images/llavero/llavero_1.jpg"] }
-            ]
+          "name": "Negro",
+          "hex": "#1f2937",
+          "images": [
+            "assets/images/gato/gato_rosado_basecelular2.jpeg",
+            "assets/images/gato/gato_rosado_basecelular3.jpeg"
+          ]
+        },
+        {
+          "name": "Morado",
+          "hex": "#8b5cf6",
+          "images": [
+            "assets/images/gato/blanco_1.jpg"
+          ]
+        },
+        {
+          "name": "Azul",
+          "hex": "#3b82f6",
+          "images": [
+            "assets/images/gato/blanco_1.jpg"
+          ]
         }
-    ]
+      ],
+      "desc": "Figura decorativa con diseño geométrico impresa en 3D. Ideal para amantes de los gatos.",
+      "title": "Gato geométrico",
+      "id": "gato_geo",
+      "category": "Decoración"
+    },
+    {
+      "size": "6 cm",
+      "mainImage": "assets/images/llavero/general.jpeg",
+      "material": "PLA Premium",
+      "price": 18000,
+      "colors": [
+        {
+          "name": "Morado",
+          "hex": "#a78bfa",
+          "images": [
+            "assets/images/llavero/llavero_1.jpg"
+          ]
+        },
+        {
+          "name": "Rosa",
+          "hex": "#f43f5e",
+          "images": [
+            "assets/images/llavero/llavero_1.jpg"
+          ]
+        },
+        {
+          "name": "Verde",
+          "hex": "#10b981",
+          "images": [
+            "assets/images/llavero/llavero_1.jpg"
+          ]
+        }
+      ],
+      "desc": "Llavero 3D personalizado con nombre o iniciales.",
+      "title": "Llavero personalizado",
+      "id": "llavero_pers",
+      "category": "Llaveros"
+    }
+  ]
 }
