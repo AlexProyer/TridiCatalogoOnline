@@ -23,7 +23,7 @@ eliminó** por ser código muerto sin valor de referencia.
 
 La carpeta física era `catalogo/assets/images/Llavero/` (con "L" mayúscula)
 mientras el código ya apuntaba a `assets/images/llavero/` (minúscula). En
-Windows no daba error, pero en un hosting Linux (como Cloudflare Pages, que
+Windows no daba error, pero en un hosting Linux (como Cloudflare Workers, que
 es donde se va a desplegar el sitio) la ruta no habría encontrado el
 archivo. **Se renombró la carpeta a `llavero/`** (minúscula) para que
 coincida exactamente con las rutas usadas en el código/datos.
@@ -92,8 +92,8 @@ código. Detalles:
   `productsDB.find(...)` antes de usar cada producto.
 - La ruta `data/products.json` es relativa al `index.html`, por lo que
   funciona igual sirviendo la carpeta `catalogo/` con cualquier servidor
-  estático local (`npx serve catalogo`) o en el deploy real de Cloudflare
-  Pages (probado localmente: `fetch` devuelve `200 OK` y el catálogo se
+  estático local (`npx serve catalogo`) o en el deploy real (probado
+  localmente con `wrangler dev`: `fetch` devuelve `200 OK` y el catálogo se
   pinta con los datos del JSON).
 - Ver [GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md) para cómo editar el catálogo
   ahora que vive en `products.json` en vez de `app.js`.
@@ -103,7 +103,7 @@ código. Detalles:
   "colección de archivo único" con un campo de tipo lista. Si alguna vez se
   edita `products.json` a mano, ojo con no perder ese wrapper.
 
-## 9. Panel de administración (Decap CMS) — repo público implícito en el flujo OAuth
+## 9. Panel de administración (Decap CMS) vía Cloudflare Workers, no Pages
 
 Se agregó un panel en `/admin/` (Decap CMS) para editar `products.json` sin
 tocar código, con login vía OAuth de GitHub. Ver
@@ -117,13 +117,45 @@ en cuenta:
 - El modo elegido es `editorial_workflow`: nada se publica solo, hay que
   entrar al panel y apretar "Publish" explícitamente después de guardar.
 - El Client Secret de la OAuth App de GitHub vive únicamente como variable
-  de entorno cifrada en Cloudflare Pages (`GITHUB_OAUTH_CLIENT_SECRET`) —
-  nunca en el repo.
-- Las dos Functions del login (`functions/api/auth.js` y
-  `functions/api/callback.js`) están en la **raíz del repo**, no dentro de
-  `catalogo/`, porque así es como Cloudflare Pages las descubre
-  (relativas al "Root directory" del proyecto, no al "Build output
-  directory").
+  configurada en el Worker `tridicatalogo` (Cloudflare dashboard → Settings
+  → Variables and Secrets, marcada "Encrypt"), nunca en el repo.
+- El puente OAuth (`src/worker.js`, `src/oauth-auth.js`,
+  `src/oauth-callback.js`) vive en la **raíz del repo** (no dentro de
+  `catalogo/`), junto con `wrangler.jsonc`. `catalogo/` es solo el
+  `assets.directory` que declara ese archivo de configuración — no hay una
+  carpeta "de Functions" separada como en Pages (ver la nota siguiente).
+
+**Corrección importante durante el desarrollo — el hosting no es Cloudflare
+Pages, es Cloudflare Workers (con static assets).** El plan original asumía
+Cloudflare Pages clásico (`*.pages.dev`, con `Pages Functions` en una
+carpeta `functions/`), pero al conectar el repo el proyecto en Cloudflare
+quedó como un **Worker** (`*.workers.dev`) — Cloudflare viene empujando
+Workers + static assets como reemplazo de Pages. Esto cambia varias cosas
+de fondo:
+
+- No existe `functions/api/*.js` (estilo Pages, ruteo automático por
+  nombre de archivo). En su lugar hay un único Worker script
+  (`src/worker.js`) que decide a mano si una request es `/api/auth`,
+  `/api/callback`, o si se sirve como archivo estático
+  (`env.ASSETS.fetch(request)`).
+- La configuración vive en `wrangler.jsonc` (raíz del repo): declara el
+  `name` del Worker (debe coincidir con el nombre en el dashboard de
+  Cloudflare), el `main` (el script de arriba) y el `assets.directory`
+  (`./catalogo`).
+- Las variables de entorno se configuran en el dashboard del Worker
+  (Settings → Variables and Secrets) — pero **solo aparece esa opción una
+  vez que el Worker tiene código propio** (`main` + assets). Un Worker que
+  sirve *únicamente* static assets (sin `main` script) no deja agregar
+  variables desde el dashboard ("Variables cannot be added to a Worker
+  that only has static assets") — por eso hizo falta agregar
+  `src/worker.js` antes de poder configurar `GITHUB_OAUTH_CLIENT_ID` /
+  `GITHUB_OAUTH_CLIENT_SECRET`.
+- Se probó localmente con `wrangler dev` (no con `npx serve`, que no
+  entiende `wrangler.jsonc` ni sirve `env.ASSETS`): sirvió `/`, `/admin/`,
+  `/data/products.json`, imágenes, y las dos rutas de la API, incluyendo
+  el redirect real a `github.com/login/oauth/authorize` con un
+  `GITHUB_OAUTH_CLIENT_ID` de prueba vía `.dev.vars` (archivo que no se
+  commitea, ver `.gitignore`).
 
 **Importante — ya no se puede abrir `index.html` con doble clic.** Antes,
 como todo era JS embebido, abrir el archivo directamente (`file://...`)
@@ -131,6 +163,6 @@ funcionaba. Ahora que `app.js` hace `fetch('data/products.json')`, abrirlo
 así falla: los navegadores no permiten `fetch` sobre el esquema `file://`
 (error de CORS / "Failed to fetch"), así que `productsLoadError` queda
 seteado y se ve el mensaje de error en vez del catálogo. Hace falta un
-servidor HTTP, aunque sea local (`npx serve catalogo`, Live Server, etc.).
-En producción esto no es un problema porque Cloudflare Pages siempre sirve
-por HTTP.
+servidor HTTP, aunque sea local (`npx serve catalogo`, `wrangler dev`,
+Live Server, etc.). En producción esto no es un problema porque Cloudflare
+Workers siempre sirve por HTTP.

@@ -5,7 +5,7 @@ al panel, agregar un producto, cambiar un precio y subir fotos.
 
 ## Entrar al panel
 
-1. Abrí en el navegador: **https://tridicatalogo.pages.dev/admin/**
+1. Abrí en el navegador: **https://tridicatalogo.alexbuitrago156.workers.dev/admin/**
 2. Hacé clic en **"Login with GitHub"**.
 3. Se abre una ventana de GitHub pidiendo autorizar el acceso — iniciá sesión
    con tu cuenta de GitHub si te lo pide, y aceptá.
@@ -28,7 +28,7 @@ decir que:
    el ícono con los borradores pendientes), abrir tu cambio, y apretar
    **"Publish" / "Publicar"**.
 3. Recién ahí, en 1-2 minutos, el cambio aparece en
-   [tridicatalogo.pages.dev](https://tridicatalogo.pages.dev).
+   [tridicatalogo.alexbuitrago156.workers.dev](https://tridicatalogo.alexbuitrago156.workers.dev).
 
 Esto es a propósito: te da la chance de revisar antes de que un error de
 tipeo (un precio mal puesto, por ejemplo) se vea en el sitio real.

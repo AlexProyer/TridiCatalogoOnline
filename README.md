@@ -7,9 +7,9 @@ prellenado por **WhatsApp**. No hay backend ni base de datos propia: el
 catálogo vive en un archivo JSON versionado en git, y hay un panel de
 administración (Decap CMS) para editarlo sin tocar código.
 
-- **Sitio en vivo**: https://tridicatalogo.pages.dev
-- **Panel de administración**: https://tridicatalogo.pages.dev/admin/ (ver [catalogo/ADMIN.md](catalogo/ADMIN.md))
-- **Repo**: [github.com/AlexProyer/TridiCatalogoOnline](https://github.com/AlexProyer/TridiCatalogoOnline), desplegado automáticamente por Cloudflare Pages (proyecto `tridicatalogo`)
+- **Sitio en vivo**: https://tridicatalogo.alexbuitrago156.workers.dev
+- **Panel de administración**: https://tridicatalogo.alexbuitrago156.workers.dev/admin/ (ver [catalogo/ADMIN.md](catalogo/ADMIN.md))
+- **Repo**: [github.com/AlexProyer/TridiCatalogoOnline](https://github.com/AlexProyer/TridiCatalogoOnline), desplegado automáticamente por **Cloudflare Workers** (proyecto `tridicatalogo`, vía Workers Builds conectado a este repo)
 
 Este README es el punto de partida. Para el detalle técnico, ver:
 
@@ -46,24 +46,26 @@ npx serve catalogo
 ```
 
 o la extensión "Live Server" de VS Code sobre la carpeta `catalogo/`. En
-producción esto lo resuelve automáticamente Cloudflare Pages (o cualquier
+producción esto lo resuelve automáticamente Cloudflare Workers (o cualquier
 hosting estático), que siempre sirve los archivos por HTTP.
 
 El sitio en sí no necesita variables de entorno. El panel de administración
-(`/admin/`) sí depende de dos variables de entorno configuradas en Cloudflare
-Pages (`GITHUB_OAUTH_CLIENT_ID` y `GITHUB_OAUTH_CLIENT_SECRET`) — ver
-[ARQUITECTURA.md](ARQUITECTURA.md) sección 12. Lo otro "configurable" a mano
-es el número de WhatsApp, ver [GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md).
+(`/admin/`) sí depende de dos variables configuradas en el Worker
+`tridicatalogo` en Cloudflare (`GITHUB_OAUTH_CLIENT_ID` y
+`GITHUB_OAUTH_CLIENT_SECRET`) — ver [ARQUITECTURA.md](ARQUITECTURA.md)
+sección 12. Lo otro "configurable" a mano es el número de WhatsApp, ver
+[GUIA_PRODUCTOS.md](GUIA_PRODUCTOS.md).
 
 ## Estructura de carpetas
 
 ```
 TridiCatalogoOnline/                 (raíz del repo de GitHub)
-├── functions/
-│   └── api/
-│       ├── auth.js         Cloudflare Pages Function: arranca el login OAuth con GitHub
-│       └── callback.js     Cloudflare Pages Function: recibe el token y se lo pasa al panel admin
-└── catalogo/                        (Build output directory configurado en Cloudflare Pages)
+├── wrangler.jsonc          Configuración del Worker: qué carpeta sirve como sitio (catalogo/) y qué script lo maneja
+├── src/
+│   ├── worker.js           Punto de entrada del Worker: rutea /api/* y sirve el resto como estático
+│   ├── oauth-auth.js       Lógica de /api/auth (arranca el login OAuth con GitHub)
+│   └── oauth-callback.js   Lógica de /api/callback (recibe el token y se lo pasa al panel admin)
+└── catalogo/                        ("assets.directory" en wrangler.jsonc — lo que se sirve como sitio)
     ├── index.html            Toda la estructura HTML de la app (una sola página)
     ├── ADMIN.md              Guía simple del panel de administración (sin tecnicismos)
     ├── css/
@@ -81,16 +83,17 @@ TridiCatalogoOnline/                 (raíz del repo de GitHub)
             └── llavero/        Foto genérica del producto "Llavero personalizado"
 ```
 
-`functions/` vive en la **raíz del repo** (no dentro de `catalogo/`) porque
-Cloudflare Pages busca las Functions relativas al "Root directory" del
-proyecto, que es distinto del "Build output directory" (`catalogo/`, que es
-lo que efectivamente se sirve como sitio). Ver
-[ARQUITECTURA.md](ARQUITECTURA.md) sección 12 para el detalle del panel
+`wrangler.jsonc` y `src/` viven en la **raíz del repo** (no dentro de
+`catalogo/`) porque así lo espera Cloudflare Workers: el archivo `main` del
+Worker (`src/worker.js`) y la carpeta de assets (`catalogo/`, declarada en
+`wrangler.jsonc`) son dos configuraciones independientes del mismo Worker.
+Ver [ARQUITECTURA.md](ARQUITECTURA.md) sección 12 para el detalle del panel
 admin y el flujo de OAuth.
 
 No hay `package.json` ni carpetas de build (`dist/`, `node_modules/`, etc.)
 — el sitio en sí sigue siendo HTML/CSS/JS plano; lo único con código de
-servidor son las dos Cloudflare Pages Functions del login.
+servidor es el Worker del login (`src/`), que tampoco tiene dependencias
+externas (usa únicamente Web APIs nativas del runtime de Workers).
 
 ## Dependencias externas
 

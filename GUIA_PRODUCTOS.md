@@ -103,7 +103,7 @@ y poner ahí todas sus fotos (principal + una por color).
 **Cuidado con mayúsculas y minúsculas**: la ruta que se escribe en
 `products.json` debe coincidir **exactamente** con el nombre real de la
 carpeta y el archivo, incluyendo mayúsculas/minúsculas. En Windows esto
-normalmente no da error, pero el hosting de producción (Cloudflare Pages)
+normalmente no da error, pero el hosting de producción (Cloudflare Workers)
 corre sobre Linux, que sí distingue mayúsculas de minúsculas — usar siempre
 minúsculas en carpetas y archivos nuevos evita este problema (ver
 [NOTAS_TECNICAS.md](NOTAS_TECNICAS.md) por el caso real que ya se corrigió).

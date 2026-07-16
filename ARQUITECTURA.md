@@ -362,32 +362,49 @@ GitHub y hace un commit por cada publicación).
     (`id`, `title`, `price`, `category`, `desc`, `material`, `size`,
     `mainImage`, `colors[].name/hex/images`).
 
-- **[functions/api/auth.js](functions/api/auth.js)** y
-  **[functions/api/callback.js](functions/api/callback.js)** — dos
-  Cloudflare Pages Functions (código de servidor, no llegan al navegador
-  del cliente del catálogo) que hacen de "puente OAuth" entre Decap CMS y
-  GitHub. Viven en `functions/` en la **raíz del repo** (no dentro de
-  `catalogo/`), porque Cloudflare Pages busca las Functions relativas al
-  "Root directory" del proyecto, mientras que `catalogo/` es solo el "Build
-  output directory" (lo que se sirve como sitio estático).
+- **[wrangler.jsonc](wrangler.jsonc)** (raíz del repo) — la configuración
+  del Worker de Cloudflare: `name` (debe coincidir con el nombre del
+  proyecto en el dashboard, `tridicatalogo`), `main` (el script de entrada,
+  `src/worker.js`) y `assets` (`directory: "./catalogo"`, `binding:
+  "ASSETS"`, `run_worker_first: ["/api/*"]` — esto último asegura que las
+  rutas de la API pasen siempre por el script del Worker en vez de
+  intentar resolverse como un archivo estático).
+- **[src/worker.js](src/worker.js)** — punto de entrada del Worker: si la
+  ruta pedida es `/api/auth` o `/api/callback` delega a los módulos de
+  abajo; para cualquier otra ruta (`/`, `/admin/`, `/data/products.json`,
+  imágenes, etc.) hace `env.ASSETS.fetch(request)`, que sirve el archivo
+  estático correspondiente dentro de `catalogo/`.
+- **[src/oauth-auth.js](src/oauth-auth.js)** y
+  **[src/oauth-callback.js](src/oauth-callback.js)** — el "puente OAuth"
+  entre Decap CMS y GitHub (código de servidor, corre en el Worker, nunca
+  llega al navegador del cliente del catálogo).
+
+> **Nota**: el modelo original de este proyecto se planeó para Cloudflare
+> Pages clásico (con `Pages Functions` en una carpeta `functions/`, ruteo
+> automático por nombre de archivo). Al conectar el repo, Cloudflare
+> provisionó en cambio un **Worker con static assets** (dominio
+> `*.workers.dev`, no `*.pages.dev`) — el reemplazo que Cloudflare viene
+> empujando en lugar de Pages. La arquitectura de arriba ya refleja el
+> modelo real (Workers); ver [NOTAS_TECNICAS.md](NOTAS_TECNICAS.md) punto 9
+> para el detalle de esa corrección.
 
 ### Flujo de login, paso a paso
 
 1. El usuario entra a `/admin/` y toca "Login with GitHub". Decap CMS abre
    un popup a `${base_url}/api/auth`.
-2. **`auth.js`** arma la URL de autorización de GitHub
-   (`github.com/login/oauth/authorize`) con el `client_id` (variable de
-   entorno `GITHUB_OAUTH_CLIENT_ID`), un `state` aleatorio (guardado en una
-   cookie de corta duración, protección CSRF) y `redirect_uri` apuntando a
-   `/api/callback`. Redirige el popup ahí.
+2. **`oauth-auth.js`** (llamado desde `worker.js`) arma la URL de
+   autorización de GitHub (`github.com/login/oauth/authorize`) con el
+   `client_id` (variable `GITHUB_OAUTH_CLIENT_ID`), un `state` aleatorio
+   (guardado en una cookie de corta duración, protección CSRF) y
+   `redirect_uri` apuntando a `/api/callback`. Redirige el popup ahí.
 3. GitHub muestra la pantalla de autorización; el usuario acepta.
 4. GitHub redirige el popup a `/api/callback?code=...&state=...`.
-5. **`callback.js`** valida que el `state` coincida con la cookie, y
+5. **`oauth-callback.js`** valida que el `state` coincida con la cookie, y
    cambia el `code` por un `access_token` llamando a
    `github.com/login/oauth/access_token` (usando `client_id` +
-   `GITHUB_OAUTH_CLIENT_SECRET`, ambos como variables de entorno — el
+   `GITHUB_OAUTH_CLIENT_SECRET`, ambos como variables del Worker — el
    secret nunca está en el código ni en el repo).
-6. `callback.js` devuelve una página HTML mínima que hace `postMessage` del
+6. `oauth-callback.js` devuelve una página HTML mínima que hace `postMessage` del
    token de vuelta a la ventana que abrió el popup (protocolo esperado por
    Decap CMS: `authorization:github:success:{"token":"...","provider":"github"}`).
    Decap CMS recibe ese mensaje, guarda el token, y a partir de ahí llama a
@@ -403,9 +420,18 @@ autenticarse pero le va a fallar al intentar guardar. Administrar "quién
 puede usar el panel" = administrar colaboradores del repo en GitHub
 (Settings → Collaborators), no algo que se configure en Decap CMS.
 
-### Variables de entorno requeridas (Cloudflare Pages)
+### Variables requeridas (Worker `tridicatalogo` en Cloudflare)
 
-- `GITHUB_OAUTH_CLIENT_ID` — Client ID de la OAuth App de GitHub.
-- `GITHUB_OAUTH_CLIENT_SECRET` — Client Secret de esa misma OAuth App
-  (configurada como variable **secreta/cifrada** en Cloudflare Pages, nunca
-  committeada al repo).
+Se configuran en el dashboard de Cloudflare → Workers & Pages → `tridicatalogo`
+→ Settings → **Variables and Secrets** (esa opción solo aparece una vez que
+el Worker tiene un `main` script real, no solo static assets — ver
+[NOTAS_TECNICAS.md](NOTAS_TECNICAS.md) punto 9):
+
+- `GITHUB_OAUTH_CLIENT_ID` — Client ID de la OAuth App de GitHub. No es
+  secreto, pero igual se maneja como variable de entorno por simplicidad.
+- `GITHUB_OAUTH_CLIENT_SECRET` — Client Secret de esa misma OAuth App,
+  marcada como **Encrypt** (nunca committeada al repo).
+
+Para probar esto en local sin tocar las credenciales reales, `wrangler dev`
+lee un archivo `.dev.vars` (en la raíz del repo, ignorado por git) con el
+mismo formato `NOMBRE=valor` por línea.

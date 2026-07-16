@@ -1,13 +1,17 @@
-// Cloudflare Pages Function: GET /api/auth
-// Primer paso del login de Decap CMS: redirige a GitHub para que el usuario autorice la app OAuth.
+// GET /api/auth — primer paso del login de Decap CMS: redirige a GitHub
+// para que el usuario autorice la app OAuth.
 
-export async function onRequestGet({ request, env }) {
+export async function handleAuth(request, env) {
+    if (request.method !== "GET") {
+        return new Response("Method Not Allowed", { status: 405 });
+    }
+
     const url = new URL(request.url);
     const clientId = env.GITHUB_OAUTH_CLIENT_ID;
 
     if (!clientId) {
         return new Response(
-            "Falta configurar la variable de entorno GITHUB_OAUTH_CLIENT_ID en Cloudflare Pages.",
+            "Falta configurar la variable GITHUB_OAUTH_CLIENT_ID en el Worker (Cloudflare dashboard → tridicatalogo → Settings → Variables and Secrets).",
             { status: 500 }
         );
     }

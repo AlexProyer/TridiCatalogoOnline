@@ -2,7 +2,7 @@ backend:
   name: github
   repo: AlexProyer/TridiCatalogoOnline
   branch: main
-  base_url: https://tridicatalogo.pages.dev
+  base_url: https://tridicatalogo.alexbuitrago156.workers.dev
   auth_endpoint: api/auth
 
 publish_mode: editorial_workflow

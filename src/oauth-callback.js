@@ -1,9 +1,13 @@
-// Cloudflare Pages Function: GET /api/callback
-// Segundo paso del login: GitHub vuelve acá con un "code". Lo cambiamos por un
-// access_token y se lo devolvemos a la ventana de Decap CMS que abrió el popup,
-// usando el protocolo de postMessage que Decap CMS espera del backend "github".
+// GET /api/callback — segundo paso del login: GitHub vuelve acá con un "code".
+// Lo cambiamos por un access_token y se lo devolvemos a la ventana de Decap CMS
+// que abrió el popup, usando el protocolo de postMessage que Decap CMS espera
+// del backend "github".
 
-export async function onRequestGet({ request, env }) {
+export async function handleCallback(request, env) {
+    if (request.method !== "GET") {
+        return new Response("Method Not Allowed", { status: 405 });
+    }
+
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
@@ -28,7 +32,7 @@ export async function onRequestGet({ request, env }) {
         return htmlResponse(
             renderPostMessagePage("error", {
                 message:
-                    "Falta configurar GITHUB_OAUTH_CLIENT_ID / GITHUB_OAUTH_CLIENT_SECRET en Cloudflare Pages.",
+                    "Falta configurar GITHUB_OAUTH_CLIENT_ID / GITHUB_OAUTH_CLIENT_SECRET en el Worker (Cloudflare dashboard → tridicatalogo → Settings → Variables and Secrets).",
             }),
             500
         );
