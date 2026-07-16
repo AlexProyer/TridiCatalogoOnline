@@ -407,6 +407,30 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
 
 .all-colors-overlay.active { transform: translateY(0); }
 
+/* Overlay de información (Sobre Tridi / Envíos y Cambios / Privacidad),
+   mismo patrón visual que all-colors-overlay pero con más alto para texto */
+.info-overlay {
+    position: fixed;
+    bottom: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(11, 9, 20, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.info-overlay.active { transform: translateY(0); }
+.info-overlay .overlay-content { height: 80vh; }
+
+.info-overlay-body { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
+.info-overlay-body h4 { color: var(--text-main); font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+.info-overlay-body h4:first-child { margin-top: 0; }
+.info-overlay-body p { margin-bottom: 0.75rem; }
+.info-overlay-body ul { margin: 0 0 0.75rem 1.2rem; }
+.info-overlay-body a { color: var(--primary-light); }
+
 .overlay-content {
     background: var(--bg-color);
     border-top: 1px solid var(--glass-border);

@@ -38,9 +38,11 @@
                 <i class="fa-solid fa-xmark modal-icon-btn" onclick="toggleSidebar()" style="width: 35px; height: 35px;"></i>
             </div>
             <ul class="sidebar-menu">
+                <li onclick="openInfoOverlay('sobre')"><i class="fa-solid fa-circle-info"></i> Sobre Tridi</li>
                 <li><i class="fa-solid fa-clipboard-question"></i> Preguntas Frecuentes</li>
-                <li><i class="fa-solid fa-truck-fast"></i> Envíos y Entregas</li>
+                <li onclick="openInfoOverlay('envios')"><i class="fa-solid fa-truck-fast"></i> Envíos y Cambios</li>
                 <li><i class="fa-solid fa-headset"></i> Soporte</li>
+                <li onclick="openInfoOverlay('privacidad')"><i class="fa-solid fa-shield-halved"></i> Privacidad</li>
                 <li onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Cambiar Usuario</li>
             </ul>
         </div>
@@ -235,6 +237,16 @@
                 </div>
                 <div class="grid-colors" id="grid-all-colors">
                     </div>
+            </div>
+        </div>
+
+        <div class="info-overlay" id="info-overlay">
+            <div class="overlay-content">
+                <div class="overlay-header">
+                    <h3 id="info-overlay-title">Título</h3>
+                    <div class="modal-icon-btn" onclick="closeInfoOverlay()"><i class="fa-solid fa-xmark"></i></div>
+                </div>
+                <div class="info-overlay-body" id="info-overlay-content"></div>
             </div>
         </div>
 

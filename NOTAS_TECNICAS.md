@@ -270,3 +270,30 @@ sesión). Se verificó forzando `loading="eager"` manualmente que todo el
 resto del mecanismo (WebP, alt, `.loaded`) funciona correctamente una vez
 que la imagen carga; no se pudo confirmar el comportamiento de
 `loading="lazy"` en un navegador real durante esta sesión.
+
+## 12. Contenido real del negocio (Sobre Tridi, envíos, privacidad)
+
+Se reemplazó todo el texto pendiente de redactar por contenido real,
+provisto directamente por Alex (no generado ni inventado):
+
+- **Descripciones de producto** en `products.json` reescritas con
+  criterio de material (por qué PLA en piezas decorativas, no
+  repetitivas entre productos).
+- **"Sobre Tridi"**, **"Envíos y Cambios"** y **"Privacidad"** — nuevo
+  overlay reutilizable (`openInfoOverlay()`, ver
+  [ARQUITECTURA.md](ARQUITECTURA.md) sección 10), con el texto en el
+  objeto `INFO_CONTENT` de `app.js`.
+- Dato de negocio para tener en cuenta a futuro: Tridi es un grupo de 5
+  personas (no un individuo), arrancó a inicios de 2025, imprime con dos
+  Bambu Lab (P1S y P2S), trabaja 100% bajo pedido (2 a 5 días hábiles),
+  solo entrega en persona/punto medio en Bogotá o por transportadora a
+  nivel nacional, cobra en efectivo/transferencia (sin pasarela todavía),
+  y **no acepta devoluciones** (sí cambios por daño de fabricación) por
+  ser todo personalizado. Redes: Instagram
+  ([@tridi.impresion](https://www.instagram.com/tridi.impresion/)) y
+  Facebook. Si se agrega un checkout con pasarela de pago o cambia la
+  política de envíos, hay que actualizar el texto en `INFO_CONTENT`
+  a mano — no se generó desde ningún dato estructurado.
+- **"Preguntas Frecuentes" y "Soporte"** siguen siendo los únicos ítems
+  del sidebar sin funcionalidad real (ver punto 10) — no se tocaron en
+  esta pasada porque no se pidió contenido para ellos.

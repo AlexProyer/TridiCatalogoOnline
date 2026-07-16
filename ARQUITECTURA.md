@@ -325,13 +325,25 @@ usa `fallbackShare()`, que copia el texto al portapapeles
 al `<body>`, lo anima con la clase `show` (CSS transiciona su posición y
 opacidad) y lo elimina del DOM después de 3 segundos.
 
-## 10. Menú lateral (sidebar)
+## 10. Menú lateral (sidebar) y overlay de información
 
 `toggleSidebar()` alterna la clase `active` en `#sidebar` y en
-`#sidebar-overlay` (fondo oscuro detrás del menú). El sidebar es solo
-contenido estático en `index.html` (enlaces a "Preguntas Frecuentes",
-"Envíos y Entregas", "Soporte" sin funcionalidad real todavía) más la opción
-**"Cambiar Usuario"**, que llama a `logout()`.
+`#sidebar-overlay` (fondo oscuro detrás del menú). El sidebar tiene:
+
+- **"Sobre Tridi"**, **"Envíos y Cambios"** y **"Privacidad"** — cada una
+  llama a `openInfoOverlay('sobre'|'envios'|'privacidad')`.
+- **"Preguntas Frecuentes"** y **"Soporte"** — todavía sin funcionalidad
+  real (backlog pendiente, ver [NOTAS_TECNICAS.md](NOTAS_TECNICAS.md)).
+- **"Cambiar Usuario"**, que llama a `logout()`.
+
+`openInfoOverlay(key)` es un único overlay reutilizable (`#info-overlay`,
+mismo patrón visual que `#all-colors-overlay`: bottom-sheet con
+`transform: translateY(...)`) que cambia de contenido según la clave
+recibida. El texto de cada sección vive en un objeto `INFO_CONTENT` en
+`app.js` (no en el HTML) — para editar la redacción de "Sobre Tridi",
+"Envíos y Cambios" o "Privacidad" hay que tocar ese objeto, no
+`index.html`. `closeInfoOverlay()` solo quita la clase `active`. Abrir
+cualquier sección desde el sidebar también cierra el sidebar automáticamente.
 
 ## 11. Tema visual (CSS)
 

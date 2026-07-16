@@ -717,7 +717,106 @@ function createProductCardHTML(prod) {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    
+
     sidebar.classList.toggle('active');
     overlay.classList.toggle('active');
+}
+
+// ==========================================
+// 12. OVERLAY DE INFORMACIÓN (Sobre Tridi / Envíos y Cambios / Privacidad)
+// ==========================================
+
+const INFO_CONTENT = {
+    sobre: {
+        title: 'Sobre Tridi',
+        html: `
+            <p>Somos un grupo de 5 amigos. Tridi es eso: un grupo, no una sola persona.
+            Arrancamos a inicios de 2025 con una impresora, una Bambu Lab P1S, con ganas
+            de meternos de lleno al mundo de la impresión 3D resolviendo cosas que
+            parecían complicadas — como conseguir un repuesto puntual que ya nadie
+            fabricaba.</p>
+
+            <p>De ahí fuimos ampliando lo que hacíamos. Con los primeros pedidos pudimos
+            sumar una segunda impresora, una Bambu Lab P2S. Hoy trabajamos con las dos.</p>
+
+            <h4>Qué nos diferencia</h4>
+            <p>No solo imprimimos lo que nos piden: acompañamos a cada cliente a resolver
+            lo que necesita, aunque todavía no sepa bien cómo pedirlo. Todo lo que
+            hacemos es a medida — no manejamos una línea de producción en serie, cada
+            pieza se ajusta a quien la pidió.</p>
+
+            <h4>Cómo elegimos el material</h4>
+            <p>El material se elige según el uso que le vas a dar, no al revés: piezas
+            decorativas en un plástico estándar (PLA), piezas que necesitan más
+            resistencia al uso diario en un material más duro (PETG), y repuestos
+            exigentes en polímeros técnicos (PPS). Buscamos el mejor balance entre
+            calidad y precio para cada pedido — no la opción más barata a secas.</p>
+        `
+    },
+    envios: {
+        title: 'Envíos y Cambios',
+        html: `
+            <h4>Cómo funciona</h4>
+            <p>Todo lo hacemos bajo pedido. Según el diseño, el tiempo de fabricación es
+            de 2 a 5 días hábiles.</p>
+
+            <h4>Entrega en Bogotá</h4>
+            <p>Coordinamos entrega personal, en un punto medio, o podés recoger
+            directamente en el punto de fabricación.</p>
+
+            <h4>Envíos nacionales</h4>
+            <p>A cualquier parte de Colombia, por transportadoras certificadas (por
+            ejemplo, Interrápidísimo).</p>
+
+            <h4>Cambios</h4>
+            <p>Si tu pedido llegó con un daño evidente de impresión, o falló en un uso
+            donde normalmente no debería fallar (por ejemplo, una lámpara que empezó a
+            derretirse), te lo cambiamos sin costo — es responsabilidad nuestra.</p>
+
+            <h4>Devoluciones</h4>
+            <p>No aceptamos devoluciones. Como trabajamos bajo pedido y cada pieza es
+            personalizada, no tenemos cómo revenderla — aceptar devoluciones sería una
+            pérdida total para nosotros. Por eso es clave confirmar bien los detalles
+            (color, tamaño, texto del llavero, etc.) antes de cerrar el pedido por
+            WhatsApp.</p>
+        `
+    },
+    privacidad: {
+        title: 'Privacidad',
+        html: `
+            <p>Este catálogo no tiene servidor propio ni base de datos: es un sitio
+            estático.</p>
+
+            <p>Lo único que guardamos es lo que ves en tu propio navegador
+            (<code>localStorage</code>), y nunca sale de tu dispositivo:</p>
+            <ul>
+                <li>Tu nombre (si lo escribiste), para saludarte y para armar el mensaje de WhatsApp.</li>
+                <li>Tus productos favoritos.</li>
+                <li>Tu historial de "pedidos" (en realidad, un registro local de qué productos consultaste por WhatsApp).</li>
+            </ul>
+
+            <p>Nada de esto llega a Tridi. Lo único que efectivamente recibimos es el
+            mensaje de WhatsApp que vos mismo enviás al tocar "Pedir por WhatsApp" — ahí
+            sí vemos tu número y lo que escribas.</p>
+
+            <p>Si borrás los datos del sitio en tu navegador, o cambiás de dispositivo,
+            ese historial local desaparece. No hay forma de recuperarlo porque nunca
+            estuvo en ningún servidor.</p>
+        `
+    }
+};
+
+function openInfoOverlay(key) {
+    const data = INFO_CONTENT[key];
+    if (!data) return;
+    document.getElementById('info-overlay-title').innerText = data.title;
+    document.getElementById('info-overlay-content').innerHTML = data.html;
+    document.getElementById('info-overlay').classList.add('active');
+    if (document.getElementById('sidebar').classList.contains('active')) {
+        toggleSidebar(); // Cerrar el menú lateral al abrir la información
+    }
+}
+
+function closeInfoOverlay() {
+    document.getElementById('info-overlay').classList.remove('active');
 }
