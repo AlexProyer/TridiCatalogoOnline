@@ -389,12 +389,33 @@ Mobile-first, sin media query = mobile (el diseño original, intacto):
 |---|---|---|
 | Mobile (hasta 767px) | *(default)* | Igual que siempre. |
 | Tablet (768–1023px) | `@media (min-width: 768px)` | Aparece la barra superior, grilla de 3 columnas, se quita el `box-shadow` de "marco de teléfono". |
-| Desktop (1024px+) | `@media (min-width: 1024px)` | Grilla de 5-6+ columnas, hero de landing page, modal de producto centrado en dos columnas. |
+| Desktop estándar (1024–1599px) | `@media (min-width: 1024px)` | Grilla de 5+ columnas, hero de landing page, modal de producto centrado en dos columnas. |
+| Desktop ancho (1600–2199px) | `@media (min-width: 1600px)` | El contenedor puede crecer un poco más antes de topar. |
+| UltraWide (2200px+) | `@media (min-width: 2200px)` | Tope más generoso — se aprovecha más pantalla que en desktop estándar, sin líneas de texto interminables. |
 
-`.app-container` pasa de `max-width: 480px` (mobile) a `720px` (tablet) a
-`1280px` (desktop, con tope — no se estira sin límite en monitores ultra
-anchos). El fondo con gradiente sigue siendo el mismo en todos los tamaños;
-lo único que cambia es cuánto ancho ocupa el contenido.
+`.app-container` pasa de `max-width: 480px` (mobile) → `720px` (tablet) →
+`1600px` (desktop estándar) → `1800px` (desktop ancho) → `2000px`
+(UltraWide). **No es un tope fijo temprano**: en cualquier viewport más
+angosto que el tope de su tier, el contenedor simplemente llena el 100%
+del ancho disponible (es `max-width` sin `width` fijo, así que crece con la
+pantalla hasta chocar contra el tope). Esto reemplazó un bug real: antes
+todo desktop (1024px en adelante) topaba parejo en `1280px`, así que un
+monitor de oficina estándar de 1920×1080 —o incluso uno de 1680×1050—
+dejaba cientos de píxeles vacíos a los costados. El fondo con gradiente
+sigue siendo el mismo en todos los tamaños; lo único que cambia es cuánto
+ancho ocupa el contenido.
+
+### Grillas: `auto-fit`, no `auto-fill`
+
+`.products-grid` usa `repeat(auto-fit, minmax(Npx, 1fr))` a partir de
+tablet. La diferencia con `auto-fill` importa especialmente con pocos
+productos: `auto-fill` reserva espacio para columnas "fantasma" aunque no
+haya productos que las llenen, así que con 2 productos en una pantalla
+ancha se veían dos tarjetas chicas pegadas a la izquierda con un montón de
+espacio vacío al lado. `auto-fit` colapsa esas columnas vacías y deja que
+las tarjetas que sí existen se estiren (`1fr`) para ocupar el ancho
+disponible — con el catálogo actual (2 productos), las tarjetas se ven
+grandes y centradas en vez de chicas y corridas a un costado.
 
 ### Mostrar/ocultar la navegación: una sola clase, `.app-container.app-started`
 
@@ -482,6 +503,30 @@ drag/swipe que ya existía (y que sigue funcionando igual en todos los
 tamaños). Si el color elegido tiene una sola imagen, `renderCarousel()` le
 agrega la clase `single-image` al contenedor del carrusel y las flechas se
 ocultan solas vía CSS.
+
+### Footer (`#site-footer`)
+
+Vive como hermano de las 6 pantallas (`hero-screen` + las 5 de `screens`),
+justo después de `auth-screen` en el HTML, **fuera** del array `screens` —
+por eso `showScreen()` nunca lo oculta: queda siempre presente, debajo de
+la pantalla que esté activa en cada momento, alcanzable con solo hacer
+scroll (sin depender del sidebar). Tiene los mismos 3 links que el sidebar
+("Sobre Tridi", "Envíos y Cambios", "Privacidad", vía `openInfoOverlay()`)
+más los links a Instagram/Facebook. En mobile se apila en columna; en
+tablet/desktop pasa a una fila (logo — links — redes).
+
+Agregar el footer expuso un bug latente: `.bottom-nav` usaba
+`position: absolute` (relativo a `.app-container`), lo cual solo
+"funcionaba" porque el contenido siempre medía justo 100vh antes de que
+existiera el footer. En cuanto `.app-container` pasó a medir más de una
+pantalla, un `bottom-nav` absoluto se habría ido al final de *todo* el
+contenido (después del footer) en vez de quedarse pegado abajo del
+viewport mientras se hace scroll. Se cambió a `position: fixed` — la forma
+correcta para una barra de navegación inferior persistente, y lo que ya
+usan `.sidebar`, `.product-modal` y los overlays. Por eso cada pantalla
+(`#catalog-screen`, `.view-screen`) y ahora también `.site-footer` tienen
+`padding-bottom` reservado en mobile: para que su contenido no quede
+tapado detrás de la barra fija.
 
 ## 13. Panel de administración (Decap CMS) y login con GitHub
 

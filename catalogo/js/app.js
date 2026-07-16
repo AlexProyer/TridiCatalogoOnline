@@ -60,7 +60,7 @@ const carouselContainer = document.getElementById('carousel-container');
 // Muestra un mensaje de error legible en un contenedor de grilla si el catálogo no cargó
 function renderCatalogErrorIfNeeded(container) {
     if (!productsLoadError) return false;
-    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; width: 100%; grid-column: span 2;">⚠️ No se pudo cargar el catálogo de productos. Por favor, recargá la página o intentá más tarde.</p>`;
+    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; width: 100%; grid-column: span 2;">⚠️ No se pudo cargar el catálogo de productos. Por favor, recarga la página o intenta más tarde.</p>`;
     return true;
 }
 
@@ -761,7 +761,7 @@ const INFO_CONTENT = {
             de 2 a 5 días hábiles.</p>
 
             <h4>Entrega en Bogotá</h4>
-            <p>Coordinamos entrega personal, en un punto medio, o podés recoger
+            <p>Coordinamos entrega personal, en un punto medio, o puedes recoger
             directamente en el punto de fabricación.</p>
 
             <h4>Envíos nacionales</h4>
@@ -796,10 +796,10 @@ const INFO_CONTENT = {
             </ul>
 
             <p>Nada de esto llega a Tridi. Lo único que efectivamente recibimos es el
-            mensaje de WhatsApp que vos mismo enviás al tocar "Pedir por WhatsApp" — ahí
+            mensaje de WhatsApp que tú mismo envías al tocar "Pedir por WhatsApp" — ahí
             sí vemos tu número y lo que escribas.</p>
 
-            <p>Si borrás los datos del sitio en tu navegador, o cambiás de dispositivo,
+            <p>Si borras los datos del sitio en tu navegador, o cambias de dispositivo,
             ese historial local desaparece. No hay forma de recuperarlo porque nunca
             estuvo en ningún servidor.</p>
         `

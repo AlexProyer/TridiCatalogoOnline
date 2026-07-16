@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tridi - Catálogo de Impresiones 3D | Llaveros, Decoración y Regalos Personalizados</title>
-    <meta name="description" content="Catálogo online de Tridi: figuras decorativas, llaveros y regalos personalizados impresos en 3D. Elegí el color que más te guste y pedí directo por WhatsApp.">
+    <meta name="description" content="Catálogo online de Tridi: figuras decorativas, llaveros y regalos personalizados impresos en 3D. Elige el color que más te guste y pide directo por WhatsApp.">
 
     <!-- Open Graph (vista previa al compartir el link en WhatsApp, redes, etc.) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Tridi">
     <meta property="og:title" content="Tridi - Catálogo de Impresiones 3D">
-    <meta property="og:description" content="Figuras decorativas, llaveros y regalos personalizados impresos en 3D. Elegí el color que más te guste y pedí directo por WhatsApp.">
+    <meta property="og:description" content="Figuras decorativas, llaveros y regalos personalizados impresos en 3D. Elige el color que más te guste y pide directo por WhatsApp.">
     <meta property="og:url" content="https://tridicatalogo.alexbuitrago156.workers.dev/">
     <meta property="og:image" content="https://tridicatalogo.alexbuitrago156.workers.dev/assets/og/og-image.jpg">
     <meta property="og:image:width" content="1200">
@@ -178,6 +178,28 @@
             <input type="text" id="login-input" placeholder="Tu nombre" style="width: 100%; padding: 1rem; border-radius: 15px; border: none; outline: none; margin-bottom: 1rem; text-align: center; font-family: inherit;">
             <button class="btn-primary" onclick="quickLogin()">Acceder</button>
         </section>
+
+        <footer class="site-footer" id="site-footer">
+            <div class="site-footer-content">
+                <div class="site-footer-brand">
+                    <picture>
+                        <source srcset="assets/logo/tridi-logo.webp" type="image/webp">
+                        <img src="assets/logo/tridi-logo.png" alt="Tridi">
+                    </picture>
+                    <p>Impresiones 3D a medida, hechas en Bogotá.</p>
+                </div>
+                <nav class="site-footer-links">
+                    <span onclick="openInfoOverlay('sobre')">Sobre Tridi</span>
+                    <span onclick="openInfoOverlay('envios')">Envíos y Cambios</span>
+                    <span onclick="openInfoOverlay('privacidad')">Privacidad</span>
+                </nav>
+                <div class="site-footer-social">
+                    <a href="https://www.instagram.com/tridi.impresion/" target="_blank" rel="noopener" aria-label="Instagram de Tridi"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61585650279224" target="_blank" rel="noopener" aria-label="Facebook de Tridi"><i class="fa-brands fa-facebook"></i></a>
+                </div>
+            </div>
+            <p class="site-footer-copy">© 2026 Tridi. Hecho con cariño.</p>
+        </footer>
 
         <div class="product-modal" id="product-modal">
             <div class="modal-body">

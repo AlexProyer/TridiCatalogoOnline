@@ -495,7 +495,9 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
 /* --- BARRA INFERIOR DE NAVEGACIÓN --- */
 .bottom-nav {
     display: none; /* se revela con .app-container.app-started más abajo */
-    position: absolute;
+    /* fixed (no absolute): tiene que quedar pegada al viewport, no al final
+       de .app-container — que ahora puede medir más de 100vh por el footer */
+    position: fixed;
     bottom: 0; left: 0; width: 100%;
     background: rgba(11, 9, 20, 0.9);
     backdrop-filter: blur(15px);
@@ -554,6 +556,39 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
     min-height: 100vh;
     overflow-y: auto;
 }
+
+/* --- FOOTER --- */
+/* Vive fuera de `screens`, así que showScreen() nunca lo oculta: queda
+   siempre presente, debajo de la pantalla que esté activa en ese momento
+   (accesible con solo hacer scroll, sin depender del menú lateral). */
+.site-footer {
+    padding: 2rem 1.5rem;
+    padding-bottom: 6rem; /* Espacio para el bottom-nav, fixed, en mobile */
+    border-top: 1px solid var(--glass-border);
+}
+.site-footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+.site-footer-brand picture img { height: 40px; width: auto; margin-bottom: 0.5rem; }
+.site-footer-brand p { color: var(--text-muted); font-size: 0.8rem; }
+.site-footer-links { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.site-footer-links span { color: var(--text-muted); font-size: 0.85rem; cursor: pointer; transition: color 0.2s; }
+.site-footer-links span:hover { color: var(--text-main); }
+.site-footer-social { display: flex; gap: 1rem; }
+.site-footer-social a {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); text-decoration: none;
+    transition: color 0.2s, background 0.2s;
+}
+.site-footer-social a:hover { color: var(--text-main); background: rgba(255,255,255,0.1); }
+.site-footer-copy { text-align: center; color: var(--text-muted); font-size: 0.75rem; }
 
 /* Tarjeta de Historial de Pedidos */
 .order-card {
@@ -641,24 +676,44 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
         padding-bottom: 3rem;
     }
 
-    /* Grillas de producto: de 2 columnas fijas a columnas auto-ajustables */
+    /* Footer en fila: ya no hay bottom-nav fijo que tape nada */
+    .site-footer { padding: 2.5rem 2rem; }
+    .site-footer-content {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+    }
+    .site-footer-brand { text-align: left; }
+    .site-footer-links { flex-direction: row; gap: 2rem; }
+
+    /* Grillas de producto: de 2 columnas fijas a columnas auto-ajustables.
+       auto-fit (no auto-fill) para que, con pocos productos, las tarjetas
+       existentes se estiren y llenen el ancho en vez de quedar pegadas a
+       la izquierda con una fila de espacio vacío al lado. */
     .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 1.25rem;
     }
 
     .promo-banner { padding: 2rem; }
 }
 
+/* Desktop estándar (la mayoría de monitores de oficina, 1024–1919px):
+   el contenedor crece de forma fluida con la pantalla — sin tope hasta
+   1600px — en vez de quedar fijo en un ancho angosto que desaprovecha
+   pantallas comunes de hoy (1600×900, 1680×1050, 1920×1080). */
 @media (min-width: 1024px) {
-    .app-container { max-width: 1280px; }
+    .app-container { max-width: 1600px; }
 
     #catalog-screen, .view-screen {
         padding: 3rem 4rem;
     }
 
+    .site-footer { padding: 2.5rem 4rem; }
+
     .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1.5rem;
     }
 
@@ -747,4 +802,17 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
     /* Flechas del carrusel: solo tienen sentido a partir de acá */
     .carousel-arrow { display: flex; }
     .modal-image-container.single-image .carousel-arrow { display: none; }
+}
+
+/* Monitores anchos (>=1600px: 1600×900, 1680×1050, y el borde de 1920×1080):
+   el contenido puede seguir creciendo un poco más antes de topar. */
+@media (min-width: 1600px) {
+    .app-container { max-width: 1800px; }
+}
+
+/* UltraWide (2560px+ y 3440px+ típicos): el contenido se expande más que en
+   desktop estándar, pero sigue topando en un ancho razonable — ni líneas de
+   texto kilométricas, ni el sitio pegado a un costado con medio monitor vacío. */
+@media (min-width: 2200px) {
+    .app-container { max-width: 2000px; }
 }

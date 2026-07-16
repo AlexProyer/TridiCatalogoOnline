@@ -297,3 +297,38 @@ provisto directamente por Alex (no generado ni inventado):
 - **"Preguntas Frecuentes" y "Soporte"** siguen siendo los únicos ítems
   del sidebar sin funcionalidad real (ver punto 10) — no se tocaron en
   esta pasada porque no se pidió contenido para ellos.
+
+## 13. ✅ RESUELTO — Descubribilidad, idioma, y ancho en desktop
+
+Corrección de tres problemas reales encontrados por Alex después de usar
+el sitio en un monitor de 22":
+
+1. **"Sobre Tridi" / "Privacidad" / "Envíos y Cambios" eran difíciles de
+   encontrar** (2+ clics: abrir sidebar, después el ítem). Se agregó un
+   footer (`#site-footer`, ver [ARQUITECTURA.md](ARQUITECTURA.md) sección
+   12) con los mismos 3 links + redes sociales, alcanzable con scroll
+   desde cualquier pantalla — sin sacar los links del sidebar (quedan los
+   dos caminos). Al hacer esto se encontró y corrigió un bug real:
+   `.bottom-nav` era `position: absolute` en vez de `fixed`, lo que se
+   habría roto en cuanto el contenido midiera más de 100vh (exactamente lo
+   que pasa al agregar un footer).
+2. **Voseo (español rioplatense) en vez de español de Colombia.**
+   Aparecía en `app.js` (el objeto `INFO_CONTENT`, un mensaje de error),
+   `products.json` (una descripción), las etiquetas `<meta
+   description>`/`og:description` de `index.html`, la imagen
+   `og-image.jpg` (texto quemado en el JPEG, se regeneró), y bastante en
+   `catalogo/ADMIN.md`. Se corrigió todo a tú/español neutro-colombiano
+   (`podés`→`puedes`, `cambiás`→`cambias`, `vos`→`tú`, `Entrá`→`Entra`,
+   etc.). **No se tocaron** README.md/ARQUITECTURA.md/GUIA_PRODUCTOS.md —
+   son documentación técnica para quien mantenga el código, no contenido
+   del sitio ni de cara al dueño del negocio.
+3. **El sitio desaprovechaba el ancho en monitores de escritorio
+   comunes** (1680×1050, 1920×1080): `.app-container` topaba parejo en
+   `max-width: 1280px` desde los 1024px en adelante, dejando cientos de
+   píxeles vacíos a los costados en cualquier monitor más ancho que eso.
+   Se rediseñó como 3 escalones fluidos (1600px / 1800px / 2000px, ver
+   ARQUITECTURA.md sección 12) en vez de un tope único, y se cambió
+   `.products-grid` de `auto-fill` a `auto-fit` para que, con solo 2
+   productos en el catálogo, las tarjetas se estiren a ocupar el ancho en
+   vez de verse chicas y corridas a la izquierda. Probado sin overflow
+   horizontal en 1680×1050, 1920×1080, 2560×1440 y 3440×1440.
